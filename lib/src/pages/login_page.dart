@@ -9,8 +9,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formkey = GlobalKey<FormState>();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final emailController = TextEditingController(text: 'admin@admin.com');
+  final passwordController = TextEditingController(text: '111aaa');
   String message = '';
   Color _colorGradbeg = Color(0xffDFE3E4);
   Color _colorGradend = Color(0xffF3F4F5);

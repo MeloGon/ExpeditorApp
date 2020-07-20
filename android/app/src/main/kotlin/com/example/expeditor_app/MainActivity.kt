@@ -1,4 +1,4 @@
-package com.example.expeditor_app
+package com.innovadis.expeditor
 
 import io.flutter.embedding.android.FlutterActivity
 

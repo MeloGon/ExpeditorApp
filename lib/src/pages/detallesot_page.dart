@@ -183,8 +183,9 @@ class _DetallesOTState extends State<DetallesOT>
               SizedBox(
                 height: 10,
               ),
+              //aqui abajo era cantidad requerida preguntar que paso
               Text(
-                '${orden.cantRequerida} EA',
+                '${orden.cantEntregada} EA',
                 style: estiloCant,
               ),
               SizedBox(
@@ -278,7 +279,7 @@ class _DetallesOTState extends State<DetallesOT>
             children: <Widget>[
               Text('Estado: '),
               Text(
-                '${material.estado}',
+                'lol',
                 style: estiloMore,
               ),
             ],
