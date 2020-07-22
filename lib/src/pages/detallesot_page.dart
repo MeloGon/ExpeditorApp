@@ -3,6 +3,7 @@ import 'package:expeditor_app/api.dart';
 import 'package:expeditor_app/src/models/materiales_model.dart';
 import 'package:expeditor_app/src/models/orden_model.dart';
 import 'package:expeditor_app/src/pages/detallemat_page.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
@@ -22,9 +23,12 @@ class _DetallesOTState extends State<DetallesOT>
   TextStyle estiloOrden = TextStyle(fontSize: 24, fontFamily: 'fuente72');
   TextStyle estiloNro = TextStyle(fontSize: 16, fontFamily: 'fuente72');
   TextStyle estiloMore = TextStyle(fontSize: 14, fontFamily: 'fuente72');
+  TextStyle estiloMoreRight = TextStyle(
+      fontSize: 14, fontFamily: 'fuente72', color: Hexcolor("#32363A"));
   TextStyle estiloCant = TextStyle(fontSize: 24, fontFamily: 'fuente72');
   bool loading;
   List<String> ids = ['0', '10', '1002'];
+  int lineaMats = 0;
 
   @override
   void initState() {
@@ -247,7 +251,17 @@ class _DetallesOTState extends State<DetallesOT>
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return DetalleMatPage(
             token: widget.token,
-            nroot: '${material.codigo}',
+            idmate: '${material.id}',
+            codmate: '${material.codigo}',
+            descripcion: '${material.descripcion}',
+            lugar: '${material.lugar}',
+            ubicacion: '${material.ubicacion}',
+            cantre: '${material.cantNecesaria}',
+            unidad: '${material.unidad}',
+            acopio: '${material.puntoAcopio}',
+            canten: '${material.cantEntregada}',
+            incidencia: '${material.incidencia}',
+            nota: '${material.notas}',
           );
         }));
       },
@@ -259,7 +273,11 @@ class _DetallesOTState extends State<DetallesOT>
           ),
           Text(
             '${material.codigo}',
-            style: estiloNro,
+            style: TextStyle(
+                fontFamily: 'fuente72',
+                fontSize: 16,
+                color: Color(0xff0A6ED1),
+                fontWeight: FontWeight.w700),
           ),
           SizedBox(
             height: 5,
@@ -279,8 +297,11 @@ class _DetallesOTState extends State<DetallesOT>
             children: <Widget>[
               Text('Estado: '),
               Text(
-                'lol',
-                style: estiloMore,
+                '${material.estadoMaterial}',
+                style: TextStyle(
+                    fontFamily: 'fuente72',
+                    fontSize: 14,
+                    color: Hexcolor('${material.estadoMaterialColor}')),
               ),
             ],
           ),
@@ -290,7 +311,7 @@ class _DetallesOTState extends State<DetallesOT>
           Row(
             children: <Widget>[
               Text('Lugar: '),
-              Text('${material.lugar}', style: estiloMore),
+              Text('${material.lugar}', style: estiloMoreRight),
             ],
           ),
           SizedBox(
@@ -300,8 +321,8 @@ class _DetallesOTState extends State<DetallesOT>
             children: <Widget>[
               Text('Ubicación: '),
               Text(
-                '${material.lugar}',
-                style: estiloMore,
+                '${material.ubicacion}',
+                style: estiloMoreRight,
               ),
             ],
           ),
@@ -313,7 +334,7 @@ class _DetallesOTState extends State<DetallesOT>
               Text('Punto Acopio: '),
               Text(
                 '${material.puntoAcopio}',
-                style: estiloMore,
+                style: estiloMoreRight,
               ),
             ],
           ),
@@ -322,17 +343,30 @@ class _DetallesOTState extends State<DetallesOT>
       trailing: Container(
         width: 52,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 Text(
-                  '60 UN',
-                  style: TextStyle(color: Color(0xffE9730C), fontSize: 14),
+                  '${material.cantNecesaria}',
+                  style: TextStyle(
+                      color: Color(0xff6A6D70),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700),
                 ),
+                Text(
+                  ' ' + '${material.unidad}',
+                  style: estiloMore,
+                )
               ],
             ),
-            Text('ST'),
+            Text(
+              '${material.incidencia ?? "   "}'.substring(0, 2),
+              style: TextStyle(
+                  color: Hexcolor('${material.incidenciaColor ?? "#6A6D70"}'),
+                  fontWeight: FontWeight.w700),
+            ),
             SizedBox(height: 15)
           ],
         ),
@@ -351,7 +385,7 @@ class _DetallesOTState extends State<DetallesOT>
             children: <Widget>[
               Expanded(
                 child: Text(
-                  'Lineas de Materiales (1)',
+                  'Lineas de Materiales $lineaMats',
                   style: TextStyle(fontSize: 18.0, fontFamily: 'fuente72'),
                 ),
               ),

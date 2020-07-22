@@ -47,42 +47,6 @@ Future<List<OrdenModel>> cargarOrdenes(String token) async {
       .map((p) => OrdenModel.fromJson(p))
       .toList()
       .forEach((element) {
-    if (element.nota == 'null' || element.nota == null) {
-      element.nota = "";
-    } else if (element.fechaMovilizacion == null) {
-      element.fechaMovilizacion = new DateTime.now();
-    } else if (element.nroOt == null || element.nroOt == 'null') {
-      element.nroOt = "";
-    } else if (element.descripcion == null || element.descripcion == 'null') {
-      element.descripcion = "";
-    } else if (element.criticidad == null || element.criticidad == 'null') {
-      element.criticidad = "";
-    } else if (element.criticidadColor == null ||
-        element.criticidadColor == 'null') {
-      element.criticidadColor = "";
-    } else if (element.nroReserva == null || element.nroReserva == 'null') {
-      element.nroReserva = "";
-    } else if (element.cantNecesaria == null) {
-      element.cantNecesaria = 0;
-    } else if (element.cantEntregada == null) {
-      element.cantEntregada = 0;
-    } else if (element.cumplimiento == null) {
-      element.cumplimiento = 0;
-    } else if (element.nota == null) {
-      element.nota = "";
-    } else if (element.condicion == null) {
-      element.condicion = "";
-    } else if (element.equipo == null) {
-      element.equipo = "";
-    } else if (element.area == null) {
-      element.area = "";
-    } else if (element.empresa == null) {
-      element.empresa = "";
-    } else if (element.responsableNom == null) {
-      element.responsableNom = "";
-    } else if (element.responsableApe == null) {
-      element.responsableApe = "";
-    }
     ordenes.add(element);
   });
   return ordenes;
@@ -119,4 +83,30 @@ Future<List<MaterialModel>> cargarMateriales(String token, String nroot) async {
     materiales.add(element);
   });
   return materiales;
+}
+
+Future editarCantidad(
+    String token, int idmat, int canten, int inci, String nota) async {
+  int prueba = 2;
+  String prueba2 = "holal";
+  String url = 'https://innovadis.net.pe/apiExpeditor/public/materiales/editar';
+  final response = await http.put(url, headers: {
+    "Accept": "application/json",
+    "Content-type": "application/x-www-form-urlencoded",
+    "Authorization": token,
+  }, body: {
+    'json': '{"id_OT_material":' +
+        idmat.toString() +
+        ',"cant_entregada":' +
+        canten.toString() +
+        ',"incidencia_id":' +
+        prueba.toString() +
+        ',"notas":"' +
+        prueba2 +
+        '"}',
+  });
+
+  var convertedJson = jsonDecode(response.body);
+  print(convertedJson);
+  return convertedJson;
 }

@@ -1,18 +1,55 @@
+import 'package:expeditor_app/api.dart';
 import 'package:flutter/material.dart';
 
 class DetalleMatPage extends StatefulWidget {
-  final String token;
-  final String nroot; //modificar eso del numero ot
-  DetalleMatPage({this.token, this.nroot});
+  final String token,
+      idmate,
+      codmate,
+      descripcion,
+      lugar,
+      ubicacion,
+      cantre,
+      unidad,
+      acopio,
+      canten,
+      incidencia,
+      nota;
+  DetalleMatPage(
+      {this.token,
+      this.idmate,
+      this.codmate,
+      this.descripcion,
+      this.lugar,
+      this.ubicacion,
+      this.cantre,
+      this.unidad,
+      this.acopio,
+      this.canten,
+      this.incidencia,
+      this.nota});
   @override
   _DetalleMatPageState createState() => _DetalleMatPageState();
 }
 
 class _DetalleMatPageState extends State<DetalleMatPage> {
+  int prueba = 4;
+  String notaprueba = "lol";
+  int cantParse;
   Color _colorTitle = Color(0xff6A6D70);
   Color _colorSubtitle = Color(0xff32363A);
   Color sapColor = Color(0xff354A5F);
   Color _iconColor = Color(0xff0854a1);
+
+  @override
+  void initState() {
+    super.initState();
+    if (int.parse(widget.canten) == 0) {
+      cantParse = int.parse(widget.cantre);
+    } else {
+      cantParse = int.parse(widget.canten);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,7 +111,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                 color: _colorTitle, fontFamily: 'fuente72', fontSize: 15),
           ),
           subtitle: Text(
-            'CONJUNTO PERNO;AMSCRE;1919X6043829',
+            '${widget.codmate}',
             style: TextStyle(
               color: _colorSubtitle,
               fontWeight: FontWeight.w500,
@@ -93,7 +130,22 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
             ),
           ),
           subtitle: Text(
-            'Bodega Central',
+            '${widget.descripcion}',
+            style: TextStyle(
+                color: _colorSubtitle,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'fuente72',
+                fontSize: 16),
+          ),
+        ),
+        ListTile(
+          title: Text(
+            'Lugar:',
+            style: TextStyle(
+                color: _colorTitle, fontFamily: 'fuente72', fontSize: 14),
+          ),
+          subtitle: Text(
+            '${widget.lugar ?? ""}',
             style: TextStyle(
                 color: _colorSubtitle,
                 fontWeight: FontWeight.w500,
@@ -108,7 +160,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                 color: _colorTitle, fontFamily: 'fuente72', fontSize: 14),
           ),
           subtitle: Text(
-            'Patio 9Q',
+            '${widget.ubicacion}',
             style: TextStyle(
                 color: _colorSubtitle,
                 fontWeight: FontWeight.w500,
@@ -123,7 +175,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                 color: _colorTitle, fontFamily: 'fuente72', fontSize: 14),
           ),
           subtitle: Text(
-            '60 UN',
+            '${widget.cantre}' + ' ' + '${widget.unidad ?? " "}',
             style: TextStyle(
                 color: _colorSubtitle,
                 fontWeight: FontWeight.w500,
@@ -138,7 +190,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                 color: _colorTitle, fontFamily: 'fuente72', fontSize: 14),
           ),
           subtitle: Text(
-            '0',
+            '${widget.acopio ?? " "}',
             style: TextStyle(
                 color: _colorSubtitle,
                 fontWeight: FontWeight.w500,
@@ -190,7 +242,10 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
 
   Widget _inputCantidad() {
     return TextField(
+      controller: TextEditingController(text: '$cantParse'),
+      keyboardType: TextInputType.number,
       decoration: InputDecoration(
+          contentPadding: EdgeInsets.all(10),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(2.0))),
     );
   }
@@ -198,6 +253,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
   Widget _inputIncidencia() {
     return TextField(
       decoration: InputDecoration(
+          contentPadding: EdgeInsets.all(10),
           suffixIcon: Icon(Icons.keyboard_arrow_down),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(2.0))),
     );
@@ -233,7 +289,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                         color: Colors.white,
                         fontFamily: 'fuente72',
                         fontSize: 15,
-                        fontWeight: FontWeight.w900),
+                        fontWeight: FontWeight.w700),
                   )),
               FlatButton(
                   onPressed: () {},
@@ -257,14 +313,22 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
         Row(
           children: <Widget>[
             FlatButton(
-              onPressed: () {},
+              onPressed: () {
+                setState(() {
+                  cantParse--;
+                });
+              },
               child: Icon(
                 Icons.remove,
                 color: _iconColor,
               ),
             ),
             FlatButton(
-              onPressed: () {},
+              onPressed: () {
+                setState(() {
+                  cantParse++;
+                });
+              },
               child: Icon(
                 Icons.add,
                 color: _iconColor,
@@ -277,22 +341,52 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
   }
 
   void _guardar(BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (_) => new AlertDialog(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(4.0))),
-              content: Builder(
-                builder: (context) {
-                  return Container(
-                    child: Text(
-                      'El registro de material fue guardado',
-                      style: TextStyle(fontFamily: 'fuente72'),
-                      textAlign: TextAlign.center,
-                    ),
-                  );
-                },
-              ),
-            ));
+    FutureBuilder(
+      future: editarCantidad(widget.token, int.parse(widget.idmate), cantParse,
+          prueba, notaprueba),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          print("snap" + snapshot.data);
+        } else {
+          print("no hay datos");
+        }
+      },
+    );
+    // return FutureBuilder(
+    //     future: cargarOrdenes(widget.token),
+    //     builder:
+    //         (BuildContext context, AsyncSnapshot<List<OrdenModel>> snapshot) {
+    //       if (snapshot.hasData) {
+    //         final ordenes = snapshot.data;
+    //         return ListView.builder(
+    //           scrollDirection: Axis.vertical,
+    //           shrinkWrap: true,
+    //           itemCount: ordenes.length,
+    //           itemBuilder: (context, i) {
+    //             return itemOt(ordenes[i]);
+    //           },
+    //         );
+    //       } else {
+    //         return Center(child: CircularProgressIndicator());
+    //       }
+    //     });
+
+    // showDialog(
+    //     context: context,
+    //     builder: (_) => new AlertDialog(
+    //           shape: RoundedRectangleBorder(
+    //               borderRadius: BorderRadius.all(Radius.circular(4.0))),
+    //           content: Builder(
+    //             builder: (context) {
+    //               return Container(
+    //                 child: Text(
+    //                   'El registro de material fue guardado',
+    //                   style: TextStyle(fontFamily: 'fuente72'),
+    //                   textAlign: TextAlign.center,
+    //                 ),
+    //               );
+    //             },
+    //           ),
+    //         ));
   }
 }
