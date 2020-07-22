@@ -47,7 +47,6 @@ class MaterialModel {
   String estadoMaterialColor;
 
   factory MaterialModel.fromJson(Map<String, dynamic> json) {
-    print('${json['incidencia']}');
     if (json['codigo'] == null || json['codigo'] == 'null') {
       json['codigo'] = "";
     } else if (json['descripcion'] == null || json['descripcion'] == 'null') {

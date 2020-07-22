@@ -43,11 +43,13 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
   @override
   void initState() {
     super.initState();
-    if (int.parse(widget.canten) == 0) {
-      cantParse = int.parse(widget.cantre);
-    } else {
-      cantParse = int.parse(widget.canten);
-    }
+    setState(() {
+      if (int.parse(widget.canten) == 0) {
+        cantParse = int.parse(widget.cantre);
+      } else {
+        cantParse = int.parse(widget.canten);
+      }
+    });
   }
 
   @override
@@ -280,8 +282,16 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                   color: _iconColor,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(9)),
-                  onPressed: () {
-                    _guardar(context);
+                  onPressed: () async {
+                    var rsp = await editarCantidad(
+                        widget.token,
+                        int.parse(widget.idmate),
+                        cantParse,
+                        prueba,
+                        notaprueba);
+                    if (rsp['code'] == 200) {
+                      _guardar(context);
+                    }
                   },
                   child: Text(
                     'Guardar',
@@ -341,52 +351,22 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
   }
 
   void _guardar(BuildContext context) {
-    FutureBuilder(
-      future: editarCantidad(widget.token, int.parse(widget.idmate), cantParse,
-          prueba, notaprueba),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          print("snap" + snapshot.data);
-        } else {
-          print("no hay datos");
-        }
-      },
-    );
-    // return FutureBuilder(
-    //     future: cargarOrdenes(widget.token),
-    //     builder:
-    //         (BuildContext context, AsyncSnapshot<List<OrdenModel>> snapshot) {
-    //       if (snapshot.hasData) {
-    //         final ordenes = snapshot.data;
-    //         return ListView.builder(
-    //           scrollDirection: Axis.vertical,
-    //           shrinkWrap: true,
-    //           itemCount: ordenes.length,
-    //           itemBuilder: (context, i) {
-    //             return itemOt(ordenes[i]);
-    //           },
-    //         );
-    //       } else {
-    //         return Center(child: CircularProgressIndicator());
-    //       }
-    //     });
-
-    // showDialog(
-    //     context: context,
-    //     builder: (_) => new AlertDialog(
-    //           shape: RoundedRectangleBorder(
-    //               borderRadius: BorderRadius.all(Radius.circular(4.0))),
-    //           content: Builder(
-    //             builder: (context) {
-    //               return Container(
-    //                 child: Text(
-    //                   'El registro de material fue guardado',
-    //                   style: TextStyle(fontFamily: 'fuente72'),
-    //                   textAlign: TextAlign.center,
-    //                 ),
-    //               );
-    //             },
-    //           ),
-    //         ));
+    showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => new AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(4.0))),
+              content: Builder(
+                builder: (context) {
+                  return Container(
+                    child: Text(
+                      'El registro de material fue guardado',
+                      style: TextStyle(fontFamily: 'fuente72'),
+                      textAlign: TextAlign.center,
+                    ),
+                  );
+                },
+              ),
+            ));
   }
 }

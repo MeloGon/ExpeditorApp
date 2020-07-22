@@ -248,7 +248,7 @@ class _DetallesOTState extends State<DetallesOT>
   Widget listMats(MaterialModel material) {
     return ListTile(
       onTap: () async {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
+        await Navigator.push(context, MaterialPageRoute(builder: (context) {
           return DetalleMatPage(
             token: widget.token,
             idmate: '${material.id}',
@@ -263,6 +263,7 @@ class _DetallesOTState extends State<DetallesOT>
             incidencia: '${material.incidencia}',
             nota: '${material.notas}',
           );
+          //setState(() {});
         }));
       },
       title: Column(

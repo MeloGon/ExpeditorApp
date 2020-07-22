@@ -38,7 +38,7 @@ class OrdenModel {
   String nroReserva;
   int cantNecesaria;
   int cantEntregada;
-  int cumplimiento;
+  dynamic cumplimiento;
   dynamic nota;
   DateTime fechaMovilizacion;
   String condicion;
@@ -69,7 +69,7 @@ class OrdenModel {
     } else if (json['cant_entregada'] == null) {
       json['cant_entregada'] = 0;
     } else if (json['cumplimiento'] == null) {
-      json['cumplimiento'] = 0;
+      json['cumplimiento'] = 0.0;
     } else if (json['nota'] == null) {
       json['nota'] = "";
     } else if (json['condicion'] == null) {
