@@ -1,5 +1,6 @@
 import 'package:expeditor_app/api.dart';
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
 
 class DetalleMatPage extends StatefulWidget {
   final String token,
@@ -32,9 +33,19 @@ class DetalleMatPage extends StatefulWidget {
 }
 
 class _DetalleMatPageState extends State<DetalleMatPage> {
+  String _opcionSeleccionada;
+  int cod_incidencia;
+  List<String> _poderes = [
+    'ST - Sin Stock',
+    'SU - Sin ubicacion bodega',
+    'TR - En transito',
+    'PS - Patio Salvaje',
+    'TE - En terreno'
+  ];
   int prueba = 4;
-  String notaprueba = "lol";
+  String nota_enviar = "";
   int cantParse;
+  String notaa;
   Color _colorTitle = Color(0xff6A6D70);
   Color _colorSubtitle = Color(0xff32363A);
   Color sapColor = Color(0xff354A5F);
@@ -43,7 +54,22 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.incidencia == "ST - Sin Stock") {
+      _opcionSeleccionada = "ST - Sin Stock";
+    } else if (widget.incidencia == "SU - Sin ubicacion bodega") {
+      _opcionSeleccionada = "SU - Sin ubicacion bodega";
+    } else if (widget.incidencia == "TR - En transito") {
+      _opcionSeleccionada = "TR - En transito";
+    } else if (widget.incidencia == "PS - Patio Salvaje") {
+      _opcionSeleccionada = "PS - Patio Salvaje";
+    } else if (widget.incidencia == "TE - En terreno") {
+      _opcionSeleccionada = "TE - En terreno";
+    }
     setState(() {
+      notaa = widget.nota;
+      if (notaa == null || notaa == "null") {
+        notaa = "";
+      }
       if (int.parse(widget.canten) == 0) {
         cantParse = int.parse(widget.cantre);
       } else {
@@ -224,6 +250,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                 fontFamily: 'fuente72', fontSize: 14, color: _colorTitle),
           ),
           subtitle: Container(
+            width: double.infinity,
             child: _inputIncidencia(),
             margin: EdgeInsets.only(top: 10),
             height: 45,
@@ -253,16 +280,69 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
   }
 
   Widget _inputIncidencia() {
-    return TextField(
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.all(10),
-          suffixIcon: Icon(Icons.keyboard_arrow_down),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(2.0))),
+    return Padding(
+      padding: EdgeInsets.only(left: 1, right: 1),
+      child: Container(
+        padding: EdgeInsets.only(left: 10, right: 10),
+        decoration: BoxDecoration(
+            border: Border.all(color: Hexcolor('#89919A'), width: 0.9)),
+        child: DropdownButton(
+          hint: Text('Seleccione'),
+          style: TextStyle(fontFamily: 'fuente72', color: Colors.black),
+          value: _opcionSeleccionada,
+          icon: Icon(
+            Icons.arrow_drop_down,
+            color: _iconColor,
+          ),
+          isExpanded: true,
+          items: getOpcionesDropdown(),
+          onChanged: (opt) {
+            setState(() {
+              _opcionSeleccionada = opt;
+            });
+            if (_opcionSeleccionada == 'ST - Sin Stock') {
+              cod_incidencia = 1;
+              print(cod_incidencia);
+            } else if (_opcionSeleccionada == 'SU - Sin ubicacion bodega') {
+              cod_incidencia = 2;
+              print(cod_incidencia);
+            } else if (_opcionSeleccionada == 'TR - En transito') {
+              cod_incidencia = 3;
+              print(cod_incidencia);
+            } else if (_opcionSeleccionada == 'PS - Patio Salvaje') {
+              cod_incidencia = 4;
+              print(cod_incidencia);
+            } else if (_opcionSeleccionada == 'TE - En terreno') {
+              cod_incidencia = 5;
+              print(cod_incidencia);
+            }
+          },
+        ),
+      ),
     );
+  }
+
+  List<DropdownMenuItem<String>> getOpcionesDropdown() {
+    List<DropdownMenuItem<String>> lista = new List();
+
+    _poderes.forEach((poder) {
+      lista.add(DropdownMenuItem(
+        child: Text(poder),
+        value: poder,
+      ));
+    });
+
+    return lista;
   }
 
   Widget _inputNotas() {
     return TextField(
+      controller: TextEditingController(text: '$notaa' + '$nota_enviar'),
+      onChanged: (value) {
+        setState(() {
+          nota_enviar = value;
+        });
+      },
       decoration: InputDecoration(
           hintText: 'Escriba aqui',
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(2.0))),
@@ -287,8 +367,8 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                         widget.token,
                         int.parse(widget.idmate),
                         cantParse,
-                        prueba,
-                        notaprueba);
+                        cod_incidencia,
+                        nota_enviar);
                     if (rsp['code'] == 200) {
                       _guardar(context);
                     }
@@ -302,7 +382,9 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                         fontWeight: FontWeight.w700),
                   )),
               FlatButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                   child: Text(
                     'Cancelar',
                     style: TextStyle(

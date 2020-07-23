@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:expeditor_app/src/models/imagenes_model.dart';
 import 'package:expeditor_app/src/models/materiales_model.dart';
 import 'package:expeditor_app/src/models/orden_model.dart';
 import 'package:http/http.dart' as http;
@@ -85,10 +89,28 @@ Future<List<MaterialModel>> cargarMateriales(String token, String nroot) async {
   return materiales;
 }
 
+Future<List<ImagenModel>> cargarFotos(String token, String nroot) async {
+  String url =
+      'https://innovadis.net.pe/apiExpeditor/public/orden_trabajo/' + nroot;
+  final response = await http.get(url, headers: {
+    "Accept": "application/json",
+    "Content-type": "application/x-www-form-urlencoded",
+    "Authorization": token,
+  });
+
+  final List<ImagenModel> imagenes = new List();
+  var receivedJson = json.decode(response.body);
+  (receivedJson['data']['imagenes'] as List)
+      .map((p) => ImagenModel.fromJson(p))
+      .toList()
+      .forEach((element) {
+    imagenes.add(element);
+  });
+  return imagenes;
+}
+
 Future editarCantidad(
     String token, int idmat, int canten, int inci, String nota) async {
-  int prueba = 2;
-  String prueba2 = "holal";
   String url = 'https://innovadis.net.pe/apiExpeditor/public/materiales/editar';
   final response = await http.put(url, headers: {
     "Accept": "application/json",
@@ -100,13 +122,29 @@ Future editarCantidad(
         ',"cant_entregada":' +
         canten.toString() +
         ',"incidencia_id":' +
-        prueba.toString() +
+        inci.toString() +
         ',"notas":"' +
-        prueba2 +
+        nota +
         '"}',
   });
 
   var convertedJson = jsonDecode(response.body);
   print(convertedJson);
   return convertedJson;
+}
+
+Future subirFoto(File imagen, String token, String id) async {
+  String url =
+      'https://innovadis.net.pe/apiExpeditor/public/materiales/subirImagen/' +
+          id;
+  FormData formData = new FormData.fromMap(
+      {"file0": await MultipartFile.fromFile(imagen.path)});
+
+  Dio dio = new Dio();
+  dio.options.headers['content-Type'] = 'application/json';
+  dio.options.headers["authorization"] = token;
+  final response = await dio.post(url, data: formData);
+
+  print(response);
+  return response;
 }

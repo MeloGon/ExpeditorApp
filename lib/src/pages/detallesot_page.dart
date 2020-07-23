@@ -1,16 +1,21 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:expeditor_app/api.dart';
+import 'package:expeditor_app/src/models/imagenes_model.dart';
 import 'package:expeditor_app/src/models/materiales_model.dart';
 import 'package:expeditor_app/src/models/orden_model.dart';
 import 'package:expeditor_app/src/pages/detallemat_page.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 class DetallesOT extends StatefulWidget {
   final String token;
   final String nroot;
-  DetallesOT({this.token, this.nroot});
+  final String idot;
+  DetallesOT({this.token, this.nroot, this.idot});
   @override
   _DetallesOTState createState() => _DetallesOTState();
 }
@@ -18,6 +23,7 @@ class DetallesOT extends StatefulWidget {
 class _DetallesOTState extends State<DetallesOT>
     with AutomaticKeepAliveClientMixin<DetallesOT> {
   bool isExpanded = false;
+  int cantidadMateriales;
   Color _sapColor = Color(0xff354A5F);
   Color colorLabelTab = Color(0xff0854A0);
   TextStyle estiloOrden = TextStyle(fontSize: 24, fontFamily: 'fuente72');
@@ -28,13 +34,17 @@ class _DetallesOTState extends State<DetallesOT>
   TextStyle estiloCant = TextStyle(fontSize: 24, fontFamily: 'fuente72');
   bool loading;
   List<String> ids = ['0', '10', '1002'];
-  int lineaMats = 0;
+  String busqueda = "";
+  File foto;
+  bool editarbol = false;
+  ScrollController _scrollController = new ScrollController();
 
   @override
   void initState() {
     loading = true;
     ids = [];
     _loadImageIds();
+    _scrollController = new ScrollController(initialScrollOffset: 300);
     super.initState();
   }
 
@@ -58,6 +68,7 @@ class _DetallesOTState extends State<DetallesOT>
       body: DefaultTabController(
         length: 2,
         child: NestedScrollView(
+            controller: _scrollController,
             headerSliverBuilder:
                 (BuildContext context, bool innerBoxIsScrolled) {
               return <Widget>[
@@ -76,6 +87,15 @@ class _DetallesOTState extends State<DetallesOT>
                     ),
                   ),
                   flexibleSpace: _panelDetalle(),
+                  actions: <Widget>[
+                    IconButton(
+                        icon: Icon(Icons.sync),
+                        onPressed: () {
+                          setState(() {
+                            cargarMateriales(widget.token, widget.nroot);
+                          });
+                        })
+                  ],
                 ),
                 SliverPersistentHeader(
                   delegate: _SliverAppBarDelegate(
@@ -130,6 +150,7 @@ class _DetallesOTState extends State<DetallesOT>
 
 //ARREGLAR LO DE LOS SCROLLS VER TAMBIEN LO DE LAS UN Y PASAR A LA SIGUIENTE PANTALLA
   Widget _detalles(OrdenModel orden) {
+    var formater = new DateFormat('MMM d, yyyy');
     return SafeArea(
       child: Container(
           padding: EdgeInsets.only(left: 20, right: 20, top: 10),
@@ -138,9 +159,12 @@ class _DetallesOTState extends State<DetallesOT>
           child: ListView(
             physics: NeverScrollableScrollPhysics(),
             children: <Widget>[
-              Text(
-                '${orden.descripcion}',
-                style: estiloOrden,
+              Container(
+                height: 57,
+                child: Text(
+                  '${orden.descripcion}',
+                  style: estiloOrden,
+                ),
               ),
               SizedBox(
                 height: 5,
@@ -154,7 +178,10 @@ class _DetallesOTState extends State<DetallesOT>
               ),
               Text(
                 'Criticidad: ${orden.criticidad}',
-                style: estiloMore,
+                style: TextStyle(
+                    fontFamily: 'fuente72',
+                    fontSize: 14,
+                    color: Hexcolor('${orden.criticidadColor}')),
               ),
               SizedBox(
                 height: 7,
@@ -174,7 +201,9 @@ class _DetallesOTState extends State<DetallesOT>
                 height: 7,
               ),
               Text(
-                'Fecha Movilización: ${orden.fechaMovilizacion}',
+                'Fecha Movilización: ' +
+                    formater
+                        .format(DateTime.parse('${orden.fechaMovilizacion}')),
                 style: estiloMore,
               ),
               SizedBox(
@@ -218,11 +247,27 @@ class _DetallesOTState extends State<DetallesOT>
               ),
               Text(
                 '${orden.cumplimiento}%',
-                style: estiloCant,
+                style: TextStyle(
+                    fontFamily: 'fuente72',
+                    fontSize: 24,
+                    color: colorCumplimiento('${orden.cumplimiento}')),
               ),
             ],
           )),
     );
+  }
+
+  Color colorCumplimiento(dynamic cumplimiento) {
+    double x = double.parse(cumplimiento);
+    if (x > -1 && x < 20) {
+      return Colors.red;
+    }
+    if (x >= 20 && x < 80) {
+      return Colors.orange;
+    }
+    if (x >= 80 && x < 101) {
+      return Colors.green;
+    }
   }
 
   Widget crearMaterial() {
@@ -231,6 +276,7 @@ class _DetallesOTState extends State<DetallesOT>
         builder: (BuildContext context, snapshot) {
           if (snapshot.hasData) {
             final materiales = snapshot.data;
+            cantidadMateriales = materiales.length;
             return ListView.builder(
               shrinkWrap: true,
               itemCount: materiales.length,
@@ -386,7 +432,7 @@ class _DetallesOTState extends State<DetallesOT>
             children: <Widget>[
               Expanded(
                 child: Text(
-                  'Lineas de Materiales $lineaMats',
+                  'Lineas de Materiales $cantidadMateriales',
                   style: TextStyle(fontSize: 18.0, fontFamily: 'fuente72'),
                 ),
               ),
@@ -405,6 +451,12 @@ class _DetallesOTState extends State<DetallesOT>
       height: 60,
       padding: EdgeInsets.only(left: 150, top: 20),
       child: TextField(
+        onChanged: (value) {
+          print(busqueda);
+          setState(() {
+            busqueda = value;
+          });
+        },
         textAlignVertical: TextAlignVertical.center,
         style: TextStyle(
           fontFamily: 'fuente72',
@@ -427,49 +479,263 @@ class _DetallesOTState extends State<DetallesOT>
     if (loading) {
       return Center(child: CircularProgressIndicator());
     }
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15),
-      child: GridView.builder(
-        gridDelegate:
-            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-        itemBuilder: (context, index) {
-          return GridTile(
-            child: Container(
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return ImagePage(ids[index]);
-                      },
-                    ),
-                  );
-                },
-                child: Image.network(
-                    'https://picsum.photos/id/${ids[index]}/300/300'),
-              ),
-              decoration: BoxDecoration(
-                  border: Border.all(color: Colors.transparent, width: 10)),
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            children: <Widget>[
+              Expanded(child: Text('Fotos')),
+              IconButton(
+                  icon: Icon(
+                    Icons.sync,
+                    color: colorLabelTab,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      cargarFotos(widget.token, widget.nroot);
+                    });
+                  }),
+              popupmenu(),
+            ],
+          ),
+        ),
+        Flexible(child: fotografias()),
+      ],
+    );
+  }
+
+  Widget popupmenu() {
+    return PopupMenuButton<String>(
+      icon: Icon(
+        Icons.add,
+        color: colorLabelTab,
+      ),
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        PopupMenuItem<String>(
+          value: "tomar_foto",
+          child: Text("Tomar Fotografia"),
+        ),
+        PopupMenuItem<String>(
+          value: "subir_foto",
+          child: Text("Subir una desde la galeria"),
+        ),
+      ],
+      onSelected: (value) {
+        if (value == "tomar_foto") {
+          tomarFoto();
+        } else if (value == "subir_foto") {
+          seleccionarFoto();
+        }
+      },
+    );
+  }
+
+  seleccionarFoto() async {
+    final _picker = ImagePicker();
+    final pickedFile = await _picker.getImage(
+      source: ImageSource.gallery,
+    );
+    try {
+      foto = File(pickedFile.path);
+    } catch (e) {
+      print('$e');
+    }
+
+    if (foto != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) {
+            return ImagePage(foto, widget.token, widget.idot);
+          },
+        ),
+      );
+    } else {
+      print('ruta de imagen nula');
+    }
+
+    setState(() {});
+  }
+
+  tomarFoto() async {
+    final _picker = ImagePicker();
+    final pickedFile = await _picker.getImage(
+      source: ImageSource.camera,
+    );
+    try {
+      foto = File(pickedFile.path);
+    } catch (e) {
+      print('$e');
+    }
+
+    if (foto != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) {
+            return ImagePage(foto, widget.token, widget.idot);
+          },
+        ),
+      );
+    } else {
+      print('ruta de imagen nula');
+    }
+
+    setState(() {});
+  }
+
+  Widget fotografias() {
+    return FutureBuilder(
+        future: cargarFotos(widget.token, widget.nroot),
+        builder: (BuildContext context, snapshot) {
+          if (snapshot.hasData) {
+            final fotosot = snapshot.data;
+            return ListView.builder(
+              shrinkWrap: true,
+              itemCount: fotosot.length,
+              scrollDirection: Axis.vertical,
+              itemBuilder: (context, index) {
+                return listFotos(fotosot[index]);
+              },
+            );
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        });
+  }
+
+  Widget listFotos(ImagenModel img) {
+    return ListTile(
+      leading: GestureDetector(
+        child: Image.network(
+          '${img.url}',
+          width: 70,
+          height: 70,
+        ),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return ImagePageNetwork('${img.url}');
+              },
             ),
           );
         },
-        itemCount: ids.length,
+      ),
+      title: txtdescr(img),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'Tamaño: ' + '${img.peso}' + ' KB',
+            style: estiloMore,
+          ),
+          Row(
+            children: <Widget>[
+              IconButton(
+                icon: Icon(
+                  Icons.mode_edit,
+                  color: colorLabelTab,
+                ),
+                onPressed: () => editarNombre(),
+              ),
+              IconButton(
+                  icon: Icon(
+                    Icons.delete_outline,
+                    color: colorLabelTab,
+                  ),
+                  onPressed: () {})
+            ],
+          )
+        ],
       ),
     );
+  }
+
+  Widget txtdescr(ImagenModel img) {
+    return TextField(
+      enabled: editarbol,
+      controller: TextEditingController(text: img.descripcion),
+      decoration: InputDecoration(border: InputBorder.none),
+      style: TextStyle(fontFamily: 'fuente72', fontSize: 14),
+    );
+  }
+
+  editarNombre() {
+    setState(() {
+      editarbol = true;
+    });
   }
 }
 
 class ImagePage extends StatelessWidget {
-  final String id;
-  ImagePage(this.id);
+  final File foto;
+  final String token;
+  final String idot;
+  ImagePage(this.foto, this.token, this.idot);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(backgroundColor: Colors.black),
-      body:
-          Center(child: Image.network('https://picsum.photos/id/$id/600/600')),
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.save),
+              onPressed: () => guardarFoto(foto, token, idot, context))
+        ],
+      ),
+      body: Center(
+        child: Image(
+          image: AssetImage(foto.path),
+          height: 300.0,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+
+  guardarFoto(
+      File foto, String token, String idot, BuildContext context) async {
+    var rsp = await subirFoto(foto, token, idot);
+    if (rsp.data['code'] == 200 || rsp.data['code'] == "200") {
+      showDialog<String>(
+          context: context,
+          builder: (BuildContext context) => new AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(4.0))),
+                content: Builder(
+                  builder: (context) {
+                    return Container(
+                      child: Text(
+                        'La fotografia ha sido guardada exitosamente. Regresa a la galeria y actualiza para ver los cambios',
+                        style: TextStyle(fontFamily: 'fuente72'),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  },
+                ),
+              ));
+    } else {
+      print('algo malo paso');
+    }
+  }
+}
+
+class ImagePageNetwork extends StatelessWidget {
+  final String foto;
+  ImagePageNetwork(this.foto);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+      ),
+      body: Center(
+        child: Image.network(foto),
+      ),
     );
   }
 }

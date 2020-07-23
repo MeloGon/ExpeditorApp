@@ -1,7 +1,9 @@
+import 'package:expeditor_app/my_flutter_app_icons.dart';
 import 'package:expeditor_app/src/models/orden_model.dart';
 import 'package:expeditor_app/src/pages/detallesot_page.dart';
 import 'package:flutter/material.dart';
 import 'package:expeditor_app/api.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 
 class OrdenesPage extends StatefulWidget {
@@ -12,6 +14,7 @@ class OrdenesPage extends StatefulWidget {
 }
 
 class _OrdenesPageState extends State<OrdenesPage> {
+  dynamic cantidadOrdenes;
   Color _sapColor = Color(0xff354A5F);
   Color _colorBlue = Color(0xff0854A1);
   Color _colorPanelCabecera = Color(0xffF2F2F2);
@@ -37,7 +40,13 @@ class _OrdenesPageState extends State<OrdenesPage> {
         automaticallyImplyLeading: false,
         title: Text('Inicio'),
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.more_horiz), onPressed: () {}),
+          //este icono esta ahi pero no se ve por que le puse del mismo color que el appbar
+          IconButton(
+              icon: Icon(
+                Icons.desktop_windows,
+                color: _sapColor,
+              ),
+              onPressed: () {}),
           _perfilCircle(),
         ],
       ),
@@ -94,7 +103,7 @@ class _OrdenesPageState extends State<OrdenesPage> {
     return Container(
       width: double.infinity,
       child: Text(
-        'Órdenes de trabajo(7)',
+        'Órdenes de trabajo',
         style: TextStyle(fontFamily: 'fuente72', fontSize: 18),
       ),
       padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
@@ -129,13 +138,16 @@ class _OrdenesPageState extends State<OrdenesPage> {
             (BuildContext context, AsyncSnapshot<List<OrdenModel>> snapshot) {
           if (snapshot.hasData) {
             final ordenes = snapshot.data;
-            return ListView.builder(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: ordenes.length,
-              itemBuilder: (context, i) {
-                return itemOt(ordenes[i]);
-              },
+            return RefreshIndicator(
+              onRefresh: refrescarLista,
+              child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                itemCount: ordenes.length,
+                itemBuilder: (context, i) {
+                  return itemOt(ordenes[i]);
+                },
+              ),
             );
           } else {
             return Center(child: CircularProgressIndicator());
@@ -153,6 +165,7 @@ class _OrdenesPageState extends State<OrdenesPage> {
             return DetallesOT(
               token: widget.token,
               nroot: '${orden.nroOt}',
+              idot: '${orden.id}',
             );
           }));
         },
@@ -182,10 +195,16 @@ class _OrdenesPageState extends State<OrdenesPage> {
           children: <Widget>[
             Row(
               children: <Widget>[
-                Text('Criticidad: '),
+                Text(
+                  'Criticidad: ',
+                  style: TextStyle(fontFamily: 'fuente72'),
+                ),
                 Text(
                   '${orden.criticidad}',
-                  style: _estiloItemStat,
+                  style: TextStyle(
+                      fontFamily: 'fuente72',
+                      fontSize: 14,
+                      color: Hexcolor('${orden.criticidadColor}')),
                 ),
               ],
             ),
@@ -194,7 +213,7 @@ class _OrdenesPageState extends State<OrdenesPage> {
             ),
             Row(
               children: <Widget>[
-                Text('Área: '),
+                Text('Área: ', style: TextStyle(fontFamily: 'fuente72')),
                 Text('${orden.area}', style: _estiloItemStat),
               ],
             ),
@@ -203,7 +222,7 @@ class _OrdenesPageState extends State<OrdenesPage> {
             ),
             Row(
               children: <Widget>[
-                Text('No. Reserva: '),
+                Text('No. Reserva: ', style: TextStyle(fontFamily: 'fuente72')),
                 Text(
                   '${orden.nroReserva}',
                   style: _estiloItemStat,
@@ -215,7 +234,8 @@ class _OrdenesPageState extends State<OrdenesPage> {
             ),
             Row(
               children: <Widget>[
-                Text('Fecha Movilización: '),
+                Text('Fecha Movilización: ',
+                    style: TextStyle(fontFamily: 'fuente72')),
                 Text(
                   formater.format(DateTime.parse('${orden.fechaMovilizacion}')),
                   style: _estiloItemStat,
@@ -233,7 +253,11 @@ class _OrdenesPageState extends State<OrdenesPage> {
                 children: <Widget>[
                   Text(
                     '${orden.cumplimiento}%',
-                    style: TextStyle(color: Color(0xffE9730C), fontSize: 14),
+                    style: TextStyle(
+                        fontFamily: 'fuente72',
+                        color: colorCumplimiento('${orden.cumplimiento}'),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500),
                   ),
                   Icon(
                     Icons.arrow_forward_ios,
@@ -241,8 +265,12 @@ class _OrdenesPageState extends State<OrdenesPage> {
                   ),
                 ],
               ),
+              SizedBox(
+                height: 5,
+              ),
               Icon(
-                Icons.warning,
+                iconOt('${orden.nota}'),
+                size: 17,
                 color: Color(0xffE9730C),
               ),
               SizedBox(height: 15)
@@ -251,5 +279,30 @@ class _OrdenesPageState extends State<OrdenesPage> {
         ),
       ),
     );
+  }
+
+  Color colorCumplimiento(dynamic cumplimiento) {
+    double x = double.parse(cumplimiento);
+    if (x > -1 && x < 20) {
+      return Colors.red;
+    }
+    if (x >= 20 && x < 80) {
+      return Colors.orange;
+    }
+    if (x >= 80 && x < 101) {
+      return Colors.green;
+    }
+  }
+
+  IconData iconOt(String x) {
+    if (x == "1") {
+      return MyFlutterApp.warning_empty;
+    }
+  }
+
+  Future<Null> refrescarLista() async {
+    setState(() {
+      cargarOrdenes(widget.token);
+    });
   }
 }
