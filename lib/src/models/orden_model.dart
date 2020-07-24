@@ -14,6 +14,7 @@ class OrdenModel {
     this.id,
     this.nroOt,
     this.descripcion,
+    this.fechaActualizacion,
     this.criticidad,
     this.criticidadColor,
     this.nroReserva,
@@ -25,6 +26,7 @@ class OrdenModel {
     this.condicion,
     this.equipo,
     this.area,
+    this.subsistema,
     this.empresa,
     this.responsableNom,
     this.responsableApe,
@@ -33,62 +35,86 @@ class OrdenModel {
   int id;
   String nroOt;
   String descripcion;
+  DateTime fechaActualizacion;
   String criticidad;
   String criticidadColor;
   String nroReserva;
   int cantNecesaria;
   int cantEntregada;
-  dynamic cumplimiento;
-  dynamic nota;
+  int cumplimiento;
+  String nota;
   DateTime fechaMovilizacion;
   String condicion;
   String equipo;
   String area;
+  String subsistema;
   String empresa;
   String responsableNom;
   String responsableApe;
 
   factory OrdenModel.fromJson(Map<String, dynamic> json) {
+    if (json['fechaActualizacion'] == null ||
+        json['fechaActualizacion'] == 'null') {
+      json['fechaActualizacion'] = "${DateTime.now()}";
+    }
     if (json['fecha_movilizacion'] == null ||
         json['fecha_movilizacion'] == 'null') {
       json['fecha_movilizacion'] = "${DateTime.now()}";
-    } else if (json['nro_ot'] == null) {
+    }
+    if (json['nro_ot'] == null) {
       json['nro_ot'] = "";
-    } else if (json['descripcion'] == null || json['descripcion'] == 'null') {
+    }
+    if (json['descripcion'] == null || json['descripcion'] == 'null') {
       json['descripcion'] = "";
-    } else if (json['criticidad'] == null || json['criticidad'] == 'null') {
+    }
+    if (json['criticidad'] == null || json['criticidad'] == 'null') {
       json['criticidad'] = "";
-    } else if (json['criticidad_color'] == null ||
+    }
+    if (json['criticidad_color'] == null ||
         json['criticidad_color'] == 'null') {
       json['criticidad_color'] = "";
-    } else if (json['nro_reserva'] == null || json['nro_reserva'] == 'null') {
+    }
+    if (json['nro_reserva'] == null || json['nro_reserva'] == 'null') {
       json['nro_reserva'] = "";
-    } else if (json['cant_necesaria'] == null ||
-        json['cant_necesaria'] == 'null') {
+    }
+    if (json['cant_necesaria'] == null || json['cant_necesaria'] == 'null') {
       json['cant_necesaria'] = 0;
-    } else if (json['cant_entregada'] == null) {
+    }
+    if (json['cant_entregada'] == null) {
       json['cant_entregada'] = 0;
-    } else if (json['cumplimiento'] == null) {
+    }
+    if (json['cumplimiento'] == null) {
       json['cumplimiento'] = 0.0;
-    } else if (json['nota'] == null) {
+    }
+    if (json['nota'] == null) {
       json['nota'] = "";
-    } else if (json['condicion'] == null) {
+    }
+    if (json['condicion'] == null) {
       json['condicion'] = "";
-    } else if (json['equipo'] == null) {
+    }
+    if (json['equipo'] == null) {
       json['equipo'] = "";
-    } else if (json['area'] == null) {
+    }
+    if (json['area'] == null) {
       json['area'] = "";
-    } else if (json['empresa'] == null) {
+    }
+    if (json['empresa'] == null) {
       json['empresa'] = "";
-    } else if (json['responsable_nom'] == null) {
+    }
+    if (json['responsable_nom'] == null) {
       json['responsable_nom'] = "";
-    } else if (json['responsable_ape'] == null) {
+    }
+    if (json['responsable_ape'] == null) {
+      json['responsable_ape'] = "";
+    }
+    if (json['fechaActualizacion'] == null) {
       json['responsable_ape'] = "";
     }
     return OrdenModel(
       id: json["id"],
       nroOt: json["nro_ot"],
       descripcion: json["descripcion"],
+      fechaActualizacion: DateTime.parse(json["fechaActualizacion"]),
       criticidad: json["criticidad"],
       criticidadColor: json["criticidad_color"],
       nroReserva: json["nro_reserva"],
@@ -100,6 +126,7 @@ class OrdenModel {
       condicion: json["condicion"],
       equipo: json["equipo"],
       area: json["area"],
+      subsistema: json["subsistema"],
       empresa: json["empresa"],
       responsableNom: json["responsable_nom"],
       responsableApe: json["responsable_ape"],
@@ -110,6 +137,7 @@ class OrdenModel {
         "id": id,
         "nro_ot": nroOt,
         "descripcion": descripcion,
+        "fechaActualizacion": fechaActualizacion.toIso8601String(),
         "criticidad": criticidad,
         "criticidad_color": criticidadColor,
         "nro_reserva": nroReserva,
@@ -121,6 +149,7 @@ class OrdenModel {
         "condicion": condicion,
         "equipo": equipo,
         "area": area,
+        "subsistema": subsistema,
         "empresa": empresa,
         "responsable_nom": responsableNom,
         "responsable_ape": responsableApe,

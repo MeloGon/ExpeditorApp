@@ -9,8 +9,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formkey = GlobalKey<FormState>();
-  final emailController = TextEditingController(text: 'admin@admin.com');
-  final passwordController = TextEditingController(text: '111aaa');
+  final emailController = TextEditingController(text: '');
+  final passwordController = TextEditingController(text: '');
   String message = '';
   Color _colorGradbeg = Color(0xffDFE3E4);
   Color _colorGradend = Color(0xffF3F4F5);
@@ -27,14 +27,17 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      body: Stack(
-        children: <Widget>[
-          _fondoApp(),
-          _crearTarjeta(context),
-          _textoCopy(),
-        ],
+    return WillPopScope(
+      onWillPop: () => Future.value(false),
+      child: Scaffold(
+        resizeToAvoidBottomPadding: false,
+        body: Stack(
+          children: <Widget>[
+            _fondoApp(),
+            _crearTarjeta(context),
+            _textoCopy(),
+          ],
+        ),
       ),
     );
   }

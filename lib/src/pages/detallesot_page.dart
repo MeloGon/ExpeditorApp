@@ -23,7 +23,7 @@ class DetallesOT extends StatefulWidget {
 class _DetallesOTState extends State<DetallesOT>
     with AutomaticKeepAliveClientMixin<DetallesOT> {
   bool isExpanded = false;
-  int cantidadMateriales;
+  dynamic cantidadMateriales;
   Color _sapColor = Color(0xff354A5F);
   Color colorLabelTab = Color(0xff0854A0);
   TextStyle estiloOrden = TextStyle(fontSize: 24, fontFamily: 'fuente72');
@@ -47,12 +47,13 @@ class _DetallesOTState extends State<DetallesOT>
     ids = [];
     _loadImageIds();
     _scrollController = new ScrollController(initialScrollOffset: 300);
-    cargarMateriales(widget.token, widget.nroot).then((value) {
-      setState(() {
-        listaMaterialesToda = value;
-        listaMaterialesTodaFiltrada = listaMaterialesToda;
-      });
-    });
+    // cargarMateriales(widget.token, widget.nroot).then((value) {
+    //   setState(() {
+    //     listaMaterialesToda = value;
+    //     listaMaterialesTodaFiltrada = listaMaterialesToda;
+    //     cantidadMateriales = listaMaterialesToda.length;
+    //   });
+    // });
     super.initState();
   }
 
@@ -72,6 +73,13 @@ class _DetallesOTState extends State<DetallesOT>
 
   @override
   Widget build(BuildContext context) {
+    cargarMateriales(widget.token, widget.nroot).then((value) {
+      setState(() {
+        listaMaterialesToda = value;
+        listaMaterialesTodaFiltrada = listaMaterialesToda;
+        cantidadMateriales = listaMaterialesToda.length;
+      });
+    });
     return Scaffold(
       body: DefaultTabController(
         length: 2,
@@ -96,13 +104,7 @@ class _DetallesOTState extends State<DetallesOT>
                   ),
                   flexibleSpace: _panelDetalle(),
                   actions: <Widget>[
-                    IconButton(
-                        icon: Icon(Icons.sync),
-                        onPressed: () {
-                          setState(() {
-                            cargarMateriales(widget.token, widget.nroot);
-                          });
-                        })
+                    IconButton(icon: Icon(Icons.sync), onPressed: () {})
                   ],
                 ),
                 SliverPersistentHeader(
@@ -116,7 +118,7 @@ class _DetallesOTState extends State<DetallesOT>
                         Tab(
                           text: "Materiales",
                         ),
-                        Tab(text: "Foto"),
+                        Tab(text: "Fotos"),
                       ],
                     ),
                   ),
@@ -279,39 +281,23 @@ class _DetallesOTState extends State<DetallesOT>
   }
 
   Widget crearMaterial() {
+    setState(() {});
     return ListView.builder(
       shrinkWrap: true,
       itemCount: listaMaterialesTodaFiltrada.length,
       physics: ScrollPhysics(),
       scrollDirection: Axis.vertical,
       itemBuilder: (context, index) {
-        return listMats(listaMaterialesTodaFiltrada[index]);
+        return listMats(listaMaterialesToda[index]);
       },
     );
-    // return FutureBuilder(
-    //     future: cargarMateriales(widget.token, widget.nroot),
-    //     builder: (BuildContext context, snapshot) {
-    //       if (snapshot.hasData) {
-    //         final materiales = snapshot.data;
-    //         cantidadMateriales = materiales.length;
-    //         return ListView.builder(
-    //           shrinkWrap: true,
-    //           itemCount: materiales.length,
-    //           scrollDirection: Axis.vertical,
-    //           itemBuilder: (context, index) {
-    //             return listMats(materiales[index]);
-    //           },
-    //         );
-    //       } else {
-    //         return Center(child: CircularProgressIndicator());
-    //       }
-    //     });
   }
 
   Widget listMats(MaterialModel material) {
     return ListTile(
       onTap: () async {
         await Navigator.push(context, MaterialPageRoute(builder: (context) {
+          print(material.incidencia);
           return DetalleMatPage(
             token: widget.token,
             idmate: '${material.id}',
@@ -449,7 +435,8 @@ class _DetallesOTState extends State<DetallesOT>
             children: <Widget>[
               Expanded(
                 child: Text(
-                  'Lineas de Materiales',
+                  'Lineas de Materiales (' +
+                      '${cantidadMateriales ?? "Estimando .."})',
                   style: TextStyle(fontSize: 18.0, fontFamily: 'fuente72'),
                 ),
               ),
@@ -535,11 +522,17 @@ class _DetallesOTState extends State<DetallesOT>
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         PopupMenuItem<String>(
           value: "tomar_foto",
-          child: Text("Tomar Fotografia"),
+          child: Text(
+            "Tomar Fotografia",
+            style: TextStyle(fontFamily: 'fuente72'),
+          ),
         ),
         PopupMenuItem<String>(
           value: "subir_foto",
-          child: Text("Subir una desde la galeria"),
+          child: Text(
+            "Subir una desde la galeria",
+            style: TextStyle(fontFamily: 'fuente72'),
+          ),
         ),
       ],
       onSelected: (value) {
@@ -574,8 +567,6 @@ class _DetallesOTState extends State<DetallesOT>
     } else {
       print('ruta de imagen nula');
     }
-
-    setState(() {});
   }
 
   tomarFoto() async {
@@ -600,8 +591,6 @@ class _DetallesOTState extends State<DetallesOT>
     } else {
       print('ruta de imagen nula');
     }
-
-    setState(() {});
   }
 
   Widget fotografias() {
@@ -662,12 +651,12 @@ class _DetallesOTState extends State<DetallesOT>
                 ),
                 onPressed: () => editarNombre(),
               ),
-              IconButton(
-                  icon: Icon(
-                    Icons.delete_outline,
-                    color: colorLabelTab,
-                  ),
-                  onPressed: () {})
+              // IconButton(
+              //     icon: Icon(
+              //       Icons.delete_outline,
+              //       color: colorLabelTab,
+              //     ),
+              //     onPressed: () {})
             ],
           )
         ],
@@ -691,12 +680,15 @@ class _DetallesOTState extends State<DetallesOT>
   }
 }
 
-class ImagePage extends StatelessWidget {
+class ImagePage extends StatefulWidget {
   final File foto;
   final String token;
   final String idot;
   ImagePage(this.foto, this.token, this.idot);
+  _ImagePageState createState() => _ImagePageState();
+}
 
+class _ImagePageState extends State<ImagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -704,14 +696,19 @@ class ImagePage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.black,
         actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.save),
-              onPressed: () => guardarFoto(foto, token, idot, context))
+          FlatButton(
+              child: Text(
+                'Guardar',
+                style: TextStyle(
+                    fontFamily: 'fuente72', color: Colors.white, fontSize: 15),
+              ),
+              onPressed: () =>
+                  guardarFoto(widget.foto, widget.token, widget.idot, context))
         ],
       ),
       body: Center(
         child: Image(
-          image: AssetImage(foto.path),
+          image: AssetImage(widget.foto.path),
           height: 300.0,
           fit: BoxFit.cover,
         ),
@@ -740,6 +737,12 @@ class ImagePage extends StatelessWidget {
                   },
                 ),
               ));
+      Future.delayed(const Duration(milliseconds: 1100), () {
+        setState(() {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        });
+      });
     } else {
       print('algo malo paso');
     }

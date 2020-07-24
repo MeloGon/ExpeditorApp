@@ -34,14 +34,17 @@ Future<List<OrdenModel>> cargarOrdenes(String token) async {
   final List<OrdenModel> ordenes = new List();
   //final decodedData = json.decode(response.body)['data'];
   //final Map<String, dynamic> decodedData = json.decode(response.body)['data'];
-  var receivedJson = json.decode(response.body);
+  //var receivedJson = json.decode(response.body.toString());
+  if (response.body.isNotEmpty) {
+    var receivedJson = json.decode(response.body.toString());
+    (receivedJson['data'] as List)
+        .map((p) => OrdenModel.fromJson(p))
+        .toList()
+        .forEach((element) {
+      ordenes.add(element);
+    });
+  }
 
-  (receivedJson['data'] as List)
-      .map((p) => OrdenModel.fromJson(p))
-      .toList()
-      .forEach((element) {
-    ordenes.add(element);
-  });
   return ordenes;
 }
 
@@ -140,3 +143,18 @@ Future subirFoto(File imagen, String token, String id) async {
   print(response);
   return response;
 }
+
+// Future getfiltros(String token) async {
+//   String url = 'https://innovadis.net.pe/apiExpeditor/public/datos_filtros';
+
+//   final response = await http.get(url, headers: {
+//     "Accept": "application/json",
+//     "Content-Type": "application/x-www-form-urlencoded",
+//     "Authorization": token,
+//   });
+
+//   if (response.body.isNotEmpty) {
+//     var convertedDatatoJson = jsonDecode(response.body.toString());
+//     return convertedDatatoJson;
+//   }
+// }

@@ -1,6 +1,7 @@
 import 'package:expeditor_app/my_flutter_app_icons.dart';
 import 'package:expeditor_app/src/models/orden_model.dart';
 import 'package:expeditor_app/src/pages/detallesot_page.dart';
+import 'package:expeditor_app/src/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:expeditor_app/api.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -58,18 +59,21 @@ class _OrdenesPageState extends State<OrdenesPage> {
   TextEditingController _inputFieldDateController = new TextEditingController();
   String _fecha = '';
   String _opcionSeleccionada;
+  String filtroBusqueda = "";
 
   List<OrdenModel> listaOrdenToda = new List<OrdenModel>();
   List<OrdenModel> listaOrdenTodaFiltrada = new List<OrdenModel>();
-
+  var formaterGeneral = new DateFormat('MMM d, yyyy');
   @override
   void initState() {
     cargarOrdenes(widget.token).then((value) {
       setState(() {
         listaOrdenToda = value;
         listaOrdenTodaFiltrada = listaOrdenToda;
+        cantidadOrdenes = listaOrdenToda.length;
       });
     });
+
     super.initState();
   }
 
@@ -90,7 +94,35 @@ class _OrdenesPageState extends State<OrdenesPage> {
                 color: _sapColor,
               ),
               onPressed: () {}),
-          _perfilCircle(),
+          //_perfilCircle(context),
+          PopupMenuButton<String>(
+            icon: Icon(
+              Icons.supervised_user_circle,
+            ),
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              // PopupMenuItem<String>(
+              //   value: "perfil",
+              //   child: Text(
+              //     "Perfil (En desarrollo)",
+              //     style: TextStyle(fontFamily: 'fuente72'),
+              //   ),
+              // ),
+              PopupMenuItem<String>(
+                value: "cerrar_sesion",
+                child: Text(
+                  "Cerrar Sesion",
+                  style: TextStyle(fontFamily: 'fuente72'),
+                ),
+              ),
+            ],
+            onSelected: (value) {
+              //     if (value == "tomar_foto") {
+              // print('Nothing');
+              if (value == "cerrar_sesion") {
+                cerrarSesion();
+              }
+            },
+          )
         ],
       ),
       body: Container(
@@ -108,13 +140,19 @@ class _OrdenesPageState extends State<OrdenesPage> {
     );
   }
 
-  Widget _perfilCircle() {
-    return Container(
-        child: CircleAvatar(
-          child: Text('KM'),
-          backgroundColor: Colors.white,
+  Widget _perfilCircle(BuildContext context) {
+    return GestureDetector(
+      onTap: () {},
+      child: CircleAvatar(
+        // child: Text('KM'),
+        child: Icon(
+          Icons.supervised_user_circle,
+          color: _sapColor,
         ),
-        margin: EdgeInsets.only(right: 15.0));
+        backgroundColor: Colors.white,
+      ),
+    );
+    // margin: EdgeInsets.only(right: 15.0));
   }
 
   Widget _panelFiltros(BuildContext context) {
@@ -128,10 +166,14 @@ class _OrdenesPageState extends State<OrdenesPage> {
       children: _data.map<ExpansionPanel>((Item item) {
         return ExpansionPanel(
           headerBuilder: (BuildContext context, bool isExpanded) {
-            return ListTile(
-              title: Text(
-                'Estándar',
-                style: TextStyle(fontSize: 24, color: _colorBlue),
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListTile(
+                title: Text(
+                  'Estándar',
+                  style: TextStyle(
+                      fontSize: 24, color: _colorBlue, fontFamily: 'fuente72'),
+                ),
               ),
             );
           },
@@ -146,7 +188,7 @@ class _OrdenesPageState extends State<OrdenesPage> {
     return Container(
       width: double.infinity,
       child: Text(
-        'Órdenes de trabajo',
+        'Órdenes de trabajo (' + '${cantidadOrdenes ?? "Estimando ..."})',
         style: TextStyle(fontFamily: 'fuente72', fontSize: 18),
       ),
       padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
@@ -265,6 +307,16 @@ class _OrdenesPageState extends State<OrdenesPage> {
             ),
             Row(
               children: <Widget>[
+                Text('Subsistema: ', style: TextStyle(fontFamily: 'fuente72')),
+                Flexible(
+                    child: Text('${orden.subsistema}', style: _estiloItemStat)),
+              ],
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Row(
+              children: <Widget>[
                 Text('No. Reserva: ', style: TextStyle(fontFamily: 'fuente72')),
                 Text(
                   '${orden.nroReserva}',
@@ -350,6 +402,8 @@ class _OrdenesPageState extends State<OrdenesPage> {
   }
 
   Widget creandoFiltros(BuildContext context) {
+    // print(_inputFieldDateController.text);
+    //2020-07-24 00:00:00.000
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -358,8 +412,12 @@ class _OrdenesPageState extends State<OrdenesPage> {
           TextField(
             onChanged: (value) {
               setState(() {
-                listaOrdenTodaFiltrada = listaOrdenTodaFiltrada
-                    .where((u) => (u.descripcion
+                print(value);
+                listaOrdenTodaFiltrada = listaOrdenToda
+                    .where((u) => (u.nroOt
+                            .toLowerCase()
+                            .contains(value.toLowerCase()) ||
+                        u.descripcion
                             .toLowerCase()
                             .contains(value.toLowerCase()) ||
                         u.criticidad
@@ -389,101 +447,115 @@ class _OrdenesPageState extends State<OrdenesPage> {
           SizedBox(
             height: 10,
           ),
-          Text('Fecha'),
-          SizedBox(
-            height: 5,
-          ),
-          TextField(
-            style: TextStyle(
-              fontFamily: 'fuente72',
-              fontSize: 14,
-            ),
-            enableInteractiveSelection: false, //para que no haya interaccion
-            controller: _inputFieldDateController,
-            decoration: InputDecoration(
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(2.0)),
-              hintText: 'Fecha',
-              suffixIcon: Icon(
-                Icons.date_range,
-                color: Color(0xff0854a0),
-              ),
-            ),
-            onTap: () {
-              FocusScope.of(context).requestFocus(
-                  new FocusNode()); // para que no tenga foco el de fecha
-              _selectDate(context);
-            },
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Text('Area'),
-          SizedBox(
-            height: 5,
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 1, right: 1),
-            child: Container(
-              padding: EdgeInsets.only(left: 10, right: 10),
-              decoration: BoxDecoration(
-                  border: Border.all(color: Hexcolor('#89919A'), width: 0.9)),
-              child: DropdownButton(
-                hint: Text('Seleccione'),
-                style: TextStyle(fontFamily: 'fuente72', color: Colors.black),
-                value: _opcionSeleccionada,
-                icon: Icon(
-                  Icons.add_to_photos,
-                  color: Color(0xff0854a0),
-                ),
-                isExpanded: true,
-                items: getOpcionesDropdown(),
-                onChanged: (opt) {
-                  setState(() {
-                    _opcionSeleccionada = opt;
-                  });
-                },
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Text('Criticidad'),
-          SizedBox(
-            height: 5,
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 1, right: 1),
-            child: Container(
-              padding: EdgeInsets.only(left: 10, right: 10),
-              decoration: BoxDecoration(
-                  border: Border.all(color: Hexcolor('#89919A'), width: 0.9)),
-              child: DropdownButton(
-                hint: Text('Seleccione'),
-                style: TextStyle(fontFamily: 'fuente72', color: Colors.black),
-                value: _opcionSeleccionada,
-                icon: Icon(
-                  Icons.arrow_drop_down,
-                  color: Color(0xff0854a0),
-                ),
-                isExpanded: true,
-                items: getOpcionesDropdown(),
-                onChanged: (opt) {
-                  setState(() {
-                    _opcionSeleccionada = opt;
-                  });
-                },
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
+          // Text('Fecha'),
+          // SizedBox(
+          //   height: 5,
+          // ),
+          // Container(
+          //   height: 50,
+          //   child: TextField(
+          //     style: TextStyle(
+          //       fontFamily: 'fuente72',
+          //       fontSize: 14,
+          //     ),
+          //     enableInteractiveSelection: false, //para que no haya interaccion
+          //     controller: _inputFieldDateController,
+          //     decoration: InputDecoration(
+          //       border: OutlineInputBorder(
+          //           borderRadius: BorderRadius.circular(2.0)),
+          //       hintText: 'Fecha',
+          //       suffixIcon: Icon(
+          //         Icons.date_range,
+          //         color: Color(0xff0854a0),
+          //       ),
+          //     ),
+          //     onTap: () {
+          //       FocusScope.of(context).requestFocus(
+          //           new FocusNode()); // para que no tenga foco el de fecha
+
+          //       setState(() {
+          //         _selectDate(context);
+          //         listaOrdenTodaFiltrada = listaOrdenToda
+          //             .where((u) => (formaterGeneral
+          //                 .format(u.fechaMovilizacion)
+          //                 .toLowerCase()
+          //                 .contains(
+          //                     _inputFieldDateController.text.toLowerCase())))
+          //             .toList();
+          //       });
+          //     },
+          //   ),
+          // ),
+          // SizedBox(
+          //   height: 10,
+          // ),
+          // Text('Area'),
+          // SizedBox(
+          //   height: 5,
+          // ),
+          // Padding(
+          //   padding: EdgeInsets.only(left: 1, right: 1),
+          //   child: Container(
+          //     padding: EdgeInsets.only(left: 10, right: 10),
+          //     decoration: BoxDecoration(
+          //         border: Border.all(color: Hexcolor('#89919A'), width: 0.9)),
+          //     child: DropdownButton(
+          //       hint: Text('Seleccione'),
+          //       style: TextStyle(fontFamily: 'fuente72', color: Colors.black),
+          //       value: _opcionSeleccionada,
+          //       icon: Icon(
+          //         Icons.add_to_photos,
+          //         color: Color(0xff0854a0),
+          //       ),
+          //       isExpanded: true,
+          //       items: getOpcionesDropdown(),
+          //       onChanged: (opt) {
+          //         setState(() {
+          //           _opcionSeleccionada = opt;
+          //         });
+          //       },
+          //     ),
+          //   ),
+          // ),
+          // SizedBox(
+          //   height: 10,
+          // ),
+          // Text('Criticidad'),
+          // SizedBox(
+          //   height: 5,
+          // ),
+          // Padding(
+          //   padding: EdgeInsets.only(left: 1, right: 1),
+          //   child: Container(
+          //     padding: EdgeInsets.only(left: 10, right: 10),
+          //     decoration: BoxDecoration(
+          //         border: Border.all(color: Hexcolor('#89919A'), width: 0.9)),
+          //     child: DropdownButton(
+          //       hint: Text('Seleccione'),
+          //       style: TextStyle(fontFamily: 'fuente72', color: Colors.black),
+          //       value: _opcionSeleccionada,
+          //       icon: Icon(
+          //         Icons.arrow_drop_down,
+          //         color: Color(0xff0854a0),
+          //       ),
+          //       isExpanded: true,
+          //       items: getOpcionesDropdown(),
+          //       onChanged: (opt) {
+          //         setState(() {
+          //           _opcionSeleccionada = opt;
+          //         });
+          //       },
+          //     ),
+          //   ),
+          // ),
+          // SizedBox(height: 20),
         ],
       ),
     );
   }
 
   List<DropdownMenuItem<String>> getOpcionesDropdown() {
+    //getfiltros(widget.token);
     List<DropdownMenuItem<String>> lista = new List();
 
     lista.add(DropdownMenuItem(child: Text('area1'), value: 'area1'));
@@ -506,12 +578,20 @@ class _OrdenesPageState extends State<OrdenesPage> {
         firstDate: new DateTime(2020),
         lastDate: new DateTime(2025),
         locale: Locale('es', 'ES'));
-
+    var formaterfiltro = new DateFormat('MMM d, yyyy');
     if (escogida != null) {
       setState(() {
-        _fecha = escogida.toString();
+        //_fecha = escogida.toString();
+        _fecha = formaterfiltro.format(escogida).toString();
+        //_inputFieldDateController.text = _fecha;
         _inputFieldDateController.text = _fecha;
       });
     }
+  }
+
+  void cerrarSesion() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return LoginPage();
+    }));
   }
 }

@@ -1,4 +1,5 @@
 import 'package:expeditor_app/api.dart';
+import 'package:expeditor_app/src/pages/detallesot_page.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 
@@ -36,11 +37,12 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
   String _opcionSeleccionada;
   int cod_incidencia;
   List<String> _poderes = [
-    'ST - Sin Stock',
-    'SU - Sin ubicacion bodega',
-    'TR - En transito',
-    'PS - Patio Salvaje',
-    'TE - En terreno'
+    'ST - Sin stock',
+    'SU - Sin ubicación',
+    'TR - En Transito',
+    'PS - Patio salvataje',
+    'TE - En terreno',
+    'RB - Retiro desde Bodega'
   ];
   int prueba = 4;
   String nota_enviar = "";
@@ -54,22 +56,31 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
   @override
   void initState() {
     super.initState();
-    if (widget.incidencia == "ST - Sin Stock") {
-      _opcionSeleccionada = "ST - Sin Stock";
-    } else if (widget.incidencia == "SU - Sin ubicacion bodega") {
-      _opcionSeleccionada = "SU - Sin ubicacion bodega";
-    } else if (widget.incidencia == "TR - En transito") {
-      _opcionSeleccionada = "TR - En transito";
-    } else if (widget.incidencia == "PS - Patio Salvaje") {
-      _opcionSeleccionada = "PS - Patio Salvaje";
-    } else if (widget.incidencia == "TE - En terreno") {
+
+    if (widget.incidencia.contains("ST - Sin stock")) {
+      _opcionSeleccionada = "ST - Sin stock";
+    }
+    if (widget.incidencia.contains("SU - Sin ubicación")) {
+      _opcionSeleccionada = "SU - Sin ubicación";
+    }
+    if (widget.incidencia.contains("TR - En Transito")) {
+      _opcionSeleccionada = "TR - En Transito";
+    }
+    if (widget.incidencia.contains("PS - Patio salvataje")) {
+      _opcionSeleccionada = "PS - Patio salvataje";
+    }
+    if (widget.incidencia.contains("TE - En terreno")) {
       _opcionSeleccionada = "TE - En terreno";
     }
+    if (widget.incidencia.contains("RB - Retiro desde Bodega")) {
+      _opcionSeleccionada = "RB - Retiro desde Bodega";
+    }
     setState(() {
+      // print(widget.incidencia);
       notaa = widget.nota;
-      if (notaa == null || notaa == "null") {
-        notaa = "";
-      }
+      // if (notaa == null || notaa == "null") {
+      //   notaa = "";
+      // }
       if (int.parse(widget.canten) == 0) {
         cantParse = int.parse(widget.cantre);
       } else {
@@ -104,7 +115,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                 alignment: Alignment.bottomCenter,
                 height: 60,
                 width: double.infinity,
-                child: _options(),
+                child: _options(context),
               ),
             ),
           )
@@ -280,6 +291,30 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
   }
 
   Widget _inputIncidencia() {
+    if (_opcionSeleccionada == 'ST - Sin stock') {
+      cod_incidencia = 1;
+      print(cod_incidencia);
+    }
+    if (_opcionSeleccionada == 'SU - Sin ubicación') {
+      cod_incidencia = 2;
+      print(cod_incidencia);
+    }
+    if (_opcionSeleccionada == '"TR - En Transito') {
+      cod_incidencia = 3;
+      print(cod_incidencia);
+    }
+    if (_opcionSeleccionada == 'PS - Patio salvataje') {
+      cod_incidencia = 4;
+      print(cod_incidencia);
+    }
+    if (_opcionSeleccionada == 'TE - En terreno') {
+      cod_incidencia = 5;
+      print(cod_incidencia);
+    }
+    if (_opcionSeleccionada == 'RB - Retiro desde Bodega') {
+      cod_incidencia = 6;
+      print(cod_incidencia);
+    }
     return Padding(
       padding: EdgeInsets.only(left: 1, right: 1),
       child: Container(
@@ -300,20 +335,28 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
             setState(() {
               _opcionSeleccionada = opt;
             });
-            if (_opcionSeleccionada == 'ST - Sin Stock') {
+            if (_opcionSeleccionada == 'ST - Sin stock') {
               cod_incidencia = 1;
               print(cod_incidencia);
-            } else if (_opcionSeleccionada == 'SU - Sin ubicacion bodega') {
+            }
+            if (_opcionSeleccionada == 'SU - Sin ubicación') {
               cod_incidencia = 2;
               print(cod_incidencia);
-            } else if (_opcionSeleccionada == 'TR - En transito') {
+            }
+            if (_opcionSeleccionada == '"TR - En Transito') {
               cod_incidencia = 3;
               print(cod_incidencia);
-            } else if (_opcionSeleccionada == 'PS - Patio Salvaje') {
+            }
+            if (_opcionSeleccionada == 'PS - Patio salvataje') {
               cod_incidencia = 4;
               print(cod_incidencia);
-            } else if (_opcionSeleccionada == 'TE - En terreno') {
+            }
+            if (_opcionSeleccionada == 'TE - En terreno') {
               cod_incidencia = 5;
+              print(cod_incidencia);
+            }
+            if (_opcionSeleccionada == 'RB - Retiro desde Bodega') {
+              cod_incidencia = 6;
               print(cod_incidencia);
             }
           },
@@ -337,10 +380,10 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
 
   Widget _inputNotas() {
     return TextField(
-      controller: TextEditingController(text: '$notaa' + '$nota_enviar'),
+      controller: TextEditingController(text: notaa),
       onChanged: (value) {
         setState(() {
-          nota_enviar = value;
+          notaa = value;
         });
       },
       decoration: InputDecoration(
@@ -349,7 +392,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
     );
   }
 
-  Widget _options() {
+  Widget _options(BuildContext context) {
     return Card(
       elevation: 6.0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7.0)),
@@ -368,7 +411,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                         int.parse(widget.idmate),
                         cantParse,
                         cod_incidencia,
-                        nota_enviar);
+                        notaa);
                     if (rsp['code'] == 200) {
                       _guardar(context);
                     }
@@ -450,5 +493,18 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                 },
               ),
             ));
+
+    Future.delayed(const Duration(milliseconds: 900), () {
+      setState(() {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        // Navigator.push(context, MaterialPageRoute(builder: (context) {
+        //     return DetallesOT(
+        //       token: widget.token,
+        //       nroot: widget.n,
+        //       idot: ,
+        //     );
+      });
+    });
   }
 }
