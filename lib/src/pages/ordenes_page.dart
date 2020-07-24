@@ -13,6 +13,31 @@ class OrdenesPage extends StatefulWidget {
   _OrdenesPageState createState() => _OrdenesPageState();
 }
 
+class Item {
+  Item({
+    this.expandedValue,
+    this.headerValue,
+    this.isExpanded = false,
+  });
+
+  String expandedValue;
+  String headerValue;
+  bool isExpanded;
+}
+
+List<Item> generateItems(int numberOfItems) {
+  return List.generate(numberOfItems, (int index) {
+    return Item(
+      headerValue: 'Panel $index',
+      expandedValue: 'This is item number $index',
+    );
+  });
+}
+
+// ...
+
+List<Item> _data = generateItems(1);
+
 class _OrdenesPageState extends State<OrdenesPage> {
   dynamic cantidadOrdenes;
   Color _sapColor = Color(0xff354A5F);
@@ -30,11 +55,29 @@ class _OrdenesPageState extends State<OrdenesPage> {
     fontFamily: 'fuente72',
     color: Color(0xff32363A),
   );
+  TextEditingController _inputFieldDateController = new TextEditingController();
+  String _fecha = '';
+  String _opcionSeleccionada;
+
+  List<OrdenModel> listaOrdenToda = new List<OrdenModel>();
+  List<OrdenModel> listaOrdenTodaFiltrada = new List<OrdenModel>();
+
+  @override
+  void initState() {
+    cargarOrdenes(widget.token).then((value) {
+      setState(() {
+        listaOrdenToda = value;
+        listaOrdenTodaFiltrada = listaOrdenToda;
+      });
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     // print(widget.token); receive data works
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: _sapColor,
         automaticallyImplyLeading: false,
@@ -55,7 +98,7 @@ class _OrdenesPageState extends State<OrdenesPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            _panelFiltros(),
+            _panelFiltros(context),
             _panelContador(),
             _panelCabecera(),
             Expanded(child: _panelLista(context)),
@@ -74,28 +117,28 @@ class _OrdenesPageState extends State<OrdenesPage> {
         margin: EdgeInsets.only(right: 15.0));
   }
 
-  Widget _panelFiltros() {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Text(
+  Widget _panelFiltros(BuildContext context) {
+    return ExpansionPanelList(
+      animationDuration: Duration(milliseconds: 300),
+      expansionCallback: (int index, bool isExpanded) {
+        setState(() {
+          _data[index].isExpanded = !isExpanded;
+        });
+      },
+      children: _data.map<ExpansionPanel>((Item item) {
+        return ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(
                 'Estándar',
                 style: TextStyle(fontSize: 24, color: _colorBlue),
               ),
-              Icon(
-                Icons.keyboard_arrow_down,
-                size: 30,
-              ),
-            ],
-          ),
-          Text('No Filtrado')
-        ],
-      ),
+            );
+          },
+          body: creandoFiltros(context),
+          isExpanded: item.isExpanded,
+        );
+      }).toList(),
     );
   }
 
@@ -143,9 +186,9 @@ class _OrdenesPageState extends State<OrdenesPage> {
               child: ListView.builder(
                 scrollDirection: Axis.vertical,
                 shrinkWrap: true,
-                itemCount: ordenes.length,
+                itemCount: listaOrdenTodaFiltrada.length,
                 itemBuilder: (context, i) {
-                  return itemOt(ordenes[i]);
+                  return itemOt(listaOrdenTodaFiltrada[i]);
                 },
               ),
             );
@@ -304,5 +347,171 @@ class _OrdenesPageState extends State<OrdenesPage> {
     setState(() {
       cargarOrdenes(widget.token);
     });
+  }
+
+  Widget creandoFiltros(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          TextField(
+            onChanged: (value) {
+              setState(() {
+                listaOrdenTodaFiltrada = listaOrdenTodaFiltrada
+                    .where((u) => (u.descripcion
+                            .toLowerCase()
+                            .contains(value.toLowerCase()) ||
+                        u.criticidad
+                            .toLowerCase()
+                            .contains(value.toLowerCase()) ||
+                        u.area.toLowerCase().contains(value.toLowerCase()) ||
+                        u.nroReserva
+                            .toLowerCase()
+                            .contains(value.toLowerCase())))
+                    .toList();
+              });
+            },
+            style: TextStyle(
+              fontFamily: 'fuente72',
+              fontSize: 14,
+            ),
+            decoration: InputDecoration(
+                contentPadding: EdgeInsets.all(10),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(2.0)),
+                hintText: 'Buscar',
+                suffixIcon: Icon(
+                  Icons.search,
+                  color: Color(0xff0854a0),
+                )),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text('Fecha'),
+          SizedBox(
+            height: 5,
+          ),
+          TextField(
+            style: TextStyle(
+              fontFamily: 'fuente72',
+              fontSize: 14,
+            ),
+            enableInteractiveSelection: false, //para que no haya interaccion
+            controller: _inputFieldDateController,
+            decoration: InputDecoration(
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(2.0)),
+              hintText: 'Fecha',
+              suffixIcon: Icon(
+                Icons.date_range,
+                color: Color(0xff0854a0),
+              ),
+            ),
+            onTap: () {
+              FocusScope.of(context).requestFocus(
+                  new FocusNode()); // para que no tenga foco el de fecha
+              _selectDate(context);
+            },
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text('Area'),
+          SizedBox(
+            height: 5,
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 1, right: 1),
+            child: Container(
+              padding: EdgeInsets.only(left: 10, right: 10),
+              decoration: BoxDecoration(
+                  border: Border.all(color: Hexcolor('#89919A'), width: 0.9)),
+              child: DropdownButton(
+                hint: Text('Seleccione'),
+                style: TextStyle(fontFamily: 'fuente72', color: Colors.black),
+                value: _opcionSeleccionada,
+                icon: Icon(
+                  Icons.add_to_photos,
+                  color: Color(0xff0854a0),
+                ),
+                isExpanded: true,
+                items: getOpcionesDropdown(),
+                onChanged: (opt) {
+                  setState(() {
+                    _opcionSeleccionada = opt;
+                  });
+                },
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text('Criticidad'),
+          SizedBox(
+            height: 5,
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 1, right: 1),
+            child: Container(
+              padding: EdgeInsets.only(left: 10, right: 10),
+              decoration: BoxDecoration(
+                  border: Border.all(color: Hexcolor('#89919A'), width: 0.9)),
+              child: DropdownButton(
+                hint: Text('Seleccione'),
+                style: TextStyle(fontFamily: 'fuente72', color: Colors.black),
+                value: _opcionSeleccionada,
+                icon: Icon(
+                  Icons.arrow_drop_down,
+                  color: Color(0xff0854a0),
+                ),
+                isExpanded: true,
+                items: getOpcionesDropdown(),
+                onChanged: (opt) {
+                  setState(() {
+                    _opcionSeleccionada = opt;
+                  });
+                },
+              ),
+            ),
+          ),
+          SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  List<DropdownMenuItem<String>> getOpcionesDropdown() {
+    List<DropdownMenuItem<String>> lista = new List();
+
+    lista.add(DropdownMenuItem(child: Text('area1'), value: 'area1'));
+
+    return lista;
+  }
+
+  List<DropdownMenuItem<String>> getOpcionesDropdownArea() {
+    List<DropdownMenuItem<String>> lista = new List();
+
+    lista.add(DropdownMenuItem(child: Text('area1'), value: 'area1'));
+
+    return lista;
+  }
+
+  _selectDate(BuildContext context) async {
+    DateTime escogida = await showDatePicker(
+        context: context,
+        initialDate: new DateTime.now(),
+        firstDate: new DateTime(2020),
+        lastDate: new DateTime(2025),
+        locale: Locale('es', 'ES'));
+
+    if (escogida != null) {
+      setState(() {
+        _fecha = escogida.toString();
+        _inputFieldDateController.text = _fecha;
+      });
+    }
   }
 }

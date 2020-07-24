@@ -24,17 +24,6 @@ Future loginUser(String email, String password) async {
   return convertedDatatoJson;
 }
 
-// Future getOts(String token) async {
-//   String url = 'https://innovadis.net.pe/apiExpeditor/public/orden_trabajo';
-//   final response = await http.get(url, headers: {
-//     "Accept": "application/json",
-//     "Content-Type": "application/x-www-form-urlencoded",
-//     "Authorization": token,
-//   });
-//   var convertedDatatoJson = jsonDecode(response.body);
-//   return convertedDatatoJson;
-// }
-
 Future<List<OrdenModel>> cargarOrdenes(String token) async {
   String url = 'https://innovadis.net.pe/apiExpeditor/public/orden_trabajo';
   final response = await http.get(url, headers: {

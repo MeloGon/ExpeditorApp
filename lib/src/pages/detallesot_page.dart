@@ -282,6 +282,7 @@ class _DetallesOTState extends State<DetallesOT>
     return ListView.builder(
       shrinkWrap: true,
       itemCount: listaMaterialesTodaFiltrada.length,
+      physics: ScrollPhysics(),
       scrollDirection: Axis.vertical,
       itemBuilder: (context, index) {
         return listMats(listaMaterialesTodaFiltrada[index]);
@@ -448,7 +449,7 @@ class _DetallesOTState extends State<DetallesOT>
             children: <Widget>[
               Expanded(
                 child: Text(
-                  'Lineas de Materiales $cantidadMateriales',
+                  'Lineas de Materiales',
                   style: TextStyle(fontSize: 18.0, fontFamily: 'fuente72'),
                 ),
               ),
@@ -626,8 +627,11 @@ class _DetallesOTState extends State<DetallesOT>
   Widget listFotos(ImagenModel img) {
     return ListTile(
       leading: GestureDetector(
-        child: Image.network(
-          '${img.url}',
+        child: FadeInImage(
+          placeholder: AssetImage('assets/jar-loading.gif'),
+          image: NetworkImage(
+            '${img.url}',
+          ),
           width: 70,
           height: 70,
         ),
