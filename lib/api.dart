@@ -59,13 +59,16 @@ Future<List<OrdenModel>> cargarOrdenes(String token) async {
 Future<OrdenModel> getDetalles(String token, String nroot) async {
   String url =
       'https://innovadis.net.pe/apiExpeditor/public/orden_trabajo/' + nroot;
-  final response = await http.get(url, headers: {
-    "Accept": "application/json",
-    "Content-type": "application/x-www-form-urlencoded",
-    "Authorization": token,
-  });
+  final response = await http.get(
+    url,
+    headers: {
+      "Accept": "application/json",
+      "Content-type": "application/x-www-form-urlencoded",
+      "Authorization": token,
+    },
+  );
 
-  OrdenModel orden = OrdenModel.fromJson(jsonDecode(response.body)['data']);
+  OrdenModel orden = OrdenModel.fromJson(json.decode(response.body)['data']);
   return orden;
 }
 

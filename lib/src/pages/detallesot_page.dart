@@ -38,6 +38,8 @@ class _DetallesOTState extends State<DetallesOT>
   File foto;
   bool editarbol = false;
   ScrollController _scrollController = new ScrollController();
+  List<MaterialModel> listaMaterialesToda = new List<MaterialModel>();
+  List<MaterialModel> listaMaterialesTodaFiltrada = new List<MaterialModel>();
 
   @override
   void initState() {
@@ -45,6 +47,12 @@ class _DetallesOTState extends State<DetallesOT>
     ids = [];
     _loadImageIds();
     _scrollController = new ScrollController(initialScrollOffset: 300);
+    cargarMateriales(widget.token, widget.nroot).then((value) {
+      setState(() {
+        listaMaterialesToda = value;
+        listaMaterialesTodaFiltrada = listaMaterialesToda;
+      });
+    });
     super.initState();
   }
 
@@ -271,24 +279,32 @@ class _DetallesOTState extends State<DetallesOT>
   }
 
   Widget crearMaterial() {
-    return FutureBuilder(
-        future: cargarMateriales(widget.token, widget.nroot),
-        builder: (BuildContext context, snapshot) {
-          if (snapshot.hasData) {
-            final materiales = snapshot.data;
-            cantidadMateriales = materiales.length;
-            return ListView.builder(
-              shrinkWrap: true,
-              itemCount: materiales.length,
-              scrollDirection: Axis.vertical,
-              itemBuilder: (context, index) {
-                return listMats(materiales[index]);
-              },
-            );
-          } else {
-            return Center(child: CircularProgressIndicator());
-          }
-        });
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: listaMaterialesTodaFiltrada.length,
+      scrollDirection: Axis.vertical,
+      itemBuilder: (context, index) {
+        return listMats(listaMaterialesTodaFiltrada[index]);
+      },
+    );
+    // return FutureBuilder(
+    //     future: cargarMateriales(widget.token, widget.nroot),
+    //     builder: (BuildContext context, snapshot) {
+    //       if (snapshot.hasData) {
+    //         final materiales = snapshot.data;
+    //         cantidadMateriales = materiales.length;
+    //         return ListView.builder(
+    //           shrinkWrap: true,
+    //           itemCount: materiales.length,
+    //           scrollDirection: Axis.vertical,
+    //           itemBuilder: (context, index) {
+    //             return listMats(materiales[index]);
+    //           },
+    //         );
+    //       } else {
+    //         return Center(child: CircularProgressIndicator());
+    //       }
+    //     });
   }
 
   Widget listMats(MaterialModel material) {
@@ -452,9 +468,13 @@ class _DetallesOTState extends State<DetallesOT>
       padding: EdgeInsets.only(left: 150, top: 20),
       child: TextField(
         onChanged: (value) {
-          print(busqueda);
           setState(() {
-            busqueda = value;
+            listaMaterialesTodaFiltrada = listaMaterialesToda
+                .where((u) => (u.descripcion
+                        .toLowerCase()
+                        .contains(value.toLowerCase()) ||
+                    u.ubicacion.toLowerCase().contains(value.toLowerCase())))
+                .toList();
           });
         },
         textAlignVertical: TextAlignVertical.center,
