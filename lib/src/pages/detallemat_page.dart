@@ -1,6 +1,7 @@
 import 'package:expeditor_app/api.dart';
 import 'package:expeditor_app/src/pages/detallesot_page.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 class DetalleMatPage extends StatefulWidget {
@@ -42,7 +43,8 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
     'TR - En Transito',
     'PS - Patio salvataje',
     'TE - En terreno',
-    'RB - Retiro desde Bodega'
+    'RB - Retiro desde Bodega',
+    'Sin incidencia',
   ];
   int prueba = 4;
   String nota_enviar = "";
@@ -52,6 +54,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
   Color _colorSubtitle = Color(0xff32363A);
   Color sapColor = Color(0xff354A5F);
   Color _iconColor = Color(0xff0854a1);
+  TextEditingController _controller;
 
   @override
   void initState() {
@@ -76,11 +79,8 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
       _opcionSeleccionada = "RB - Retiro desde Bodega";
     }
     setState(() {
-      // print(widget.incidencia);
-      notaa = widget.nota;
-      // if (notaa == null || notaa == "null") {
-      //   notaa = "";
-      // }
+      print(widget.nota);
+      _controller = new TextEditingController(text: widget.nota.toString());
       if (int.parse(widget.canten) == 0) {
         cantParse = int.parse(widget.cantre);
       } else {
@@ -315,6 +315,10 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
       cod_incidencia = 6;
       print(cod_incidencia);
     }
+    if (_opcionSeleccionada == 'Sin incidencia') {
+      cod_incidencia = 0;
+      print(cod_incidencia);
+    }
     return Padding(
       padding: EdgeInsets.only(left: 1, right: 1),
       child: Container(
@@ -359,6 +363,10 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
               cod_incidencia = 6;
               print(cod_incidencia);
             }
+            if (_opcionSeleccionada == 'Sin incidencia') {
+              cod_incidencia = 0;
+              print(cod_incidencia);
+            }
           },
         ),
       ),
@@ -380,7 +388,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
 
   Widget _inputNotas() {
     return TextField(
-      controller: TextEditingController(text: notaa),
+      controller: _controller,
       onChanged: (value) {
         setState(() {
           notaa = value;
@@ -411,7 +419,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                         int.parse(widget.idmate),
                         cantParse,
                         cod_incidencia,
-                        notaa);
+                        notaa ?? widget.nota);
                     if (rsp['code'] == 200) {
                       _guardar(context);
                     }
@@ -498,12 +506,6 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
       setState(() {
         Navigator.pop(context);
         Navigator.pop(context);
-        // Navigator.push(context, MaterialPageRoute(builder: (context) {
-        //     return DetallesOT(
-        //       token: widget.token,
-        //       nroot: widget.n,
-        //       idot: ,
-        //     );
       });
     });
   }

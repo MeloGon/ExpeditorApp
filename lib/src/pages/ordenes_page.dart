@@ -87,13 +87,21 @@ class _OrdenesPageState extends State<OrdenesPage> {
         automaticallyImplyLeading: false,
         title: Text('Inicio'),
         actions: <Widget>[
-          //este icono esta ahi pero no se ve por que le puse del mismo color que el appbar
           IconButton(
               icon: Icon(
-                Icons.desktop_windows,
-                color: _sapColor,
+                Icons.sync,
               ),
-              onPressed: () {}),
+              onPressed: () {
+                setState(() {
+                  cargarOrdenes(widget.token).then((value) {
+                    setState(() {
+                      listaOrdenToda = value;
+                      listaOrdenTodaFiltrada = listaOrdenToda;
+                      cantidadOrdenes = listaOrdenToda.length;
+                    });
+                  });
+                });
+              }),
           //_perfilCircle(context),
           PopupMenuButton<String>(
             icon: Icon(
@@ -251,6 +259,15 @@ class _OrdenesPageState extends State<OrdenesPage> {
               token: widget.token,
               nroot: '${orden.nroOt}',
               idot: '${orden.id}',
+              descriot: '${orden.descripcion}',
+              areaot: '${orden.area}',
+              criti: '${orden.criticidad}',
+              critico: '${orden.criticidadColor}',
+              noreserva: '${orden.nroReserva}',
+              cantnece: '${orden.cantNecesaria}',
+              cantreque: '${orden.cantEntregada}',
+              cumpli: '${orden.cumplimiento}',
+              fechamovi: '${orden.fechaMovilizacion}',
             );
           }));
         },
@@ -447,108 +464,6 @@ class _OrdenesPageState extends State<OrdenesPage> {
           SizedBox(
             height: 10,
           ),
-          // Text('Fecha'),
-          // SizedBox(
-          //   height: 5,
-          // ),
-          // Container(
-          //   height: 50,
-          //   child: TextField(
-          //     style: TextStyle(
-          //       fontFamily: 'fuente72',
-          //       fontSize: 14,
-          //     ),
-          //     enableInteractiveSelection: false, //para que no haya interaccion
-          //     controller: _inputFieldDateController,
-          //     decoration: InputDecoration(
-          //       border: OutlineInputBorder(
-          //           borderRadius: BorderRadius.circular(2.0)),
-          //       hintText: 'Fecha',
-          //       suffixIcon: Icon(
-          //         Icons.date_range,
-          //         color: Color(0xff0854a0),
-          //       ),
-          //     ),
-          //     onTap: () {
-          //       FocusScope.of(context).requestFocus(
-          //           new FocusNode()); // para que no tenga foco el de fecha
-
-          //       setState(() {
-          //         _selectDate(context);
-          //         listaOrdenTodaFiltrada = listaOrdenToda
-          //             .where((u) => (formaterGeneral
-          //                 .format(u.fechaMovilizacion)
-          //                 .toLowerCase()
-          //                 .contains(
-          //                     _inputFieldDateController.text.toLowerCase())))
-          //             .toList();
-          //       });
-          //     },
-          //   ),
-          // ),
-          // SizedBox(
-          //   height: 10,
-          // ),
-          // Text('Area'),
-          // SizedBox(
-          //   height: 5,
-          // ),
-          // Padding(
-          //   padding: EdgeInsets.only(left: 1, right: 1),
-          //   child: Container(
-          //     padding: EdgeInsets.only(left: 10, right: 10),
-          //     decoration: BoxDecoration(
-          //         border: Border.all(color: Hexcolor('#89919A'), width: 0.9)),
-          //     child: DropdownButton(
-          //       hint: Text('Seleccione'),
-          //       style: TextStyle(fontFamily: 'fuente72', color: Colors.black),
-          //       value: _opcionSeleccionada,
-          //       icon: Icon(
-          //         Icons.add_to_photos,
-          //         color: Color(0xff0854a0),
-          //       ),
-          //       isExpanded: true,
-          //       items: getOpcionesDropdown(),
-          //       onChanged: (opt) {
-          //         setState(() {
-          //           _opcionSeleccionada = opt;
-          //         });
-          //       },
-          //     ),
-          //   ),
-          // ),
-          // SizedBox(
-          //   height: 10,
-          // ),
-          // Text('Criticidad'),
-          // SizedBox(
-          //   height: 5,
-          // ),
-          // Padding(
-          //   padding: EdgeInsets.only(left: 1, right: 1),
-          //   child: Container(
-          //     padding: EdgeInsets.only(left: 10, right: 10),
-          //     decoration: BoxDecoration(
-          //         border: Border.all(color: Hexcolor('#89919A'), width: 0.9)),
-          //     child: DropdownButton(
-          //       hint: Text('Seleccione'),
-          //       style: TextStyle(fontFamily: 'fuente72', color: Colors.black),
-          //       value: _opcionSeleccionada,
-          //       icon: Icon(
-          //         Icons.arrow_drop_down,
-          //         color: Color(0xff0854a0),
-          //       ),
-          //       isExpanded: true,
-          //       items: getOpcionesDropdown(),
-          //       onChanged: (opt) {
-          //         setState(() {
-          //           _opcionSeleccionada = opt;
-          //         });
-          //       },
-          //     ),
-          //   ),
-          // ),
-          // SizedBox(height: 20),
         ],
       ),
     );

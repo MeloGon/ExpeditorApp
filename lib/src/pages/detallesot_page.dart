@@ -15,7 +15,28 @@ class DetallesOT extends StatefulWidget {
   final String token;
   final String nroot;
   final String idot;
-  DetallesOT({this.token, this.nroot, this.idot});
+  final String criti,
+      descriot,
+      areaot,
+      critico,
+      noreserva,
+      cantnece,
+      cantreque,
+      cumpli,
+      fechamovi;
+  DetallesOT(
+      {this.token,
+      this.nroot,
+      this.idot,
+      this.descriot,
+      this.areaot,
+      this.criti,
+      this.critico,
+      this.noreserva,
+      this.cantnece,
+      this.cantreque,
+      this.cumpli,
+      this.fechamovi});
   @override
   _DetallesOTState createState() => _DetallesOTState();
 }
@@ -146,20 +167,10 @@ class _DetallesOTState extends State<DetallesOT>
   bool get wantKeepAlive => true;
 
   Widget _panelDetalle() {
-    return FutureBuilder(
-        future: getDetalles(widget.token, widget.nroot),
-        builder: (BuildContext context, snapshot) {
-          final orden = snapshot.data;
-          if (snapshot.hasData) {
-            return _detalles(orden);
-          } else {
-            return Center(child: CircularProgressIndicator());
-          }
-        });
+    return _detalles();
   }
 
-//ARREGLAR LO DE LOS SCROLLS VER TAMBIEN LO DE LAS UN Y PASAR A LA SIGUIENTE PANTALLA
-  Widget _detalles(OrdenModel orden) {
+  Widget _detalles() {
     var formater = new DateFormat('MMM d, yyyy');
     return SafeArea(
       child: Container(
@@ -172,7 +183,7 @@ class _DetallesOTState extends State<DetallesOT>
               Container(
                 height: 57,
                 child: Text(
-                  '${orden.descripcion}',
+                  '${widget.descriot}',
                   style: estiloOrden,
                 ),
               ),
@@ -180,31 +191,31 @@ class _DetallesOTState extends State<DetallesOT>
                 height: 5,
               ),
               Text(
-                'No. Orden ${orden.nroOt}',
+                'No. Orden ${widget.nroot}',
                 style: estiloNro,
               ),
               SizedBox(
                 height: 10,
               ),
               Text(
-                'Criticidad: ${orden.criticidad}',
+                'Criticidad: ${widget.criti}',
                 style: TextStyle(
                     fontFamily: 'fuente72',
                     fontSize: 14,
-                    color: Hexcolor('${orden.criticidadColor}')),
+                    color: Hexcolor('${widget.critico}')),
               ),
               SizedBox(
                 height: 7,
               ),
               Text(
-                'Area: ${orden.area}',
+                'Area: ${widget.areaot}',
                 style: estiloMore,
               ),
               SizedBox(
                 height: 7,
               ),
               Text(
-                'No. Reserva: ${orden.nroReserva}',
+                'No. Reserva: ${widget.noreserva}',
                 style: estiloMore,
               ),
               SizedBox(
@@ -212,8 +223,7 @@ class _DetallesOTState extends State<DetallesOT>
               ),
               Text(
                 'Fecha Movilización: ' +
-                    formater
-                        .format(DateTime.parse('${orden.fechaMovilizacion}')),
+                    formater.format(DateTime.parse('${widget.fechamovi}')),
                 style: estiloMore,
               ),
               SizedBox(
@@ -228,7 +238,7 @@ class _DetallesOTState extends State<DetallesOT>
               ),
               //aqui abajo era cantidad requerida preguntar que paso
               Text(
-                '${orden.cantEntregada} EA',
+                '${widget.cantnece} EA',
                 style: estiloCant,
               ),
               SizedBox(
@@ -242,7 +252,7 @@ class _DetallesOTState extends State<DetallesOT>
                 height: 10,
               ),
               Text(
-                '${orden.cantEntregada} EA',
+                '${widget.cantreque} EA',
                 style: estiloCant,
               ),
               SizedBox(
@@ -256,11 +266,11 @@ class _DetallesOTState extends State<DetallesOT>
                 height: 10,
               ),
               Text(
-                '${orden.cumplimiento}%',
+                '${widget.cumpli}%',
                 style: TextStyle(
                     fontFamily: 'fuente72',
                     fontSize: 24,
-                    color: colorCumplimiento('${orden.cumplimiento}')),
+                    color: colorCumplimiento('${widget.cumpli}')),
               ),
             ],
           )),
@@ -297,7 +307,7 @@ class _DetallesOTState extends State<DetallesOT>
     return ListTile(
       onTap: () async {
         await Navigator.push(context, MaterialPageRoute(builder: (context) {
-          print(material.incidencia);
+          print(material.notas);
           return DetalleMatPage(
             token: widget.token,
             idmate: '${material.id}',
