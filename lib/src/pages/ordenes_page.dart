@@ -64,6 +64,7 @@ class _OrdenesPageState extends State<OrdenesPage> {
   List<OrdenModel> listaOrdenToda = new List<OrdenModel>();
   List<OrdenModel> listaOrdenTodaFiltrada = new List<OrdenModel>();
   var formaterGeneral = new DateFormat('MMM d, yyyy');
+
   @override
   void initState() {
     cargarOrdenes(widget.token).then((value) {
@@ -73,7 +74,6 @@ class _OrdenesPageState extends State<OrdenesPage> {
         cantidadOrdenes = listaOrdenToda.length;
       });
     });
-
     super.initState();
   }
 

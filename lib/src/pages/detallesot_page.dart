@@ -614,6 +614,7 @@ class _DetallesOTState extends State<DetallesOT>
   }
 
   Widget listFotos(ImagenModel img) {
+    bool isediting = false;
     return ListTile(
       leading: GestureDetector(
         child: FadeInImage(
@@ -645,11 +646,14 @@ class _DetallesOTState extends State<DetallesOT>
           Row(
             children: <Widget>[
               IconButton(
-                icon: Icon(
-                  Icons.mode_edit,
-                  color: colorLabelTab,
-                ),
-                onPressed: () => editarNombre(),
+                icon: cambioIcono(isediting),
+                onPressed: () {
+                  editarNombre();
+                  setState(() {
+                    isediting = true;
+                  });
+                  cambioIcono(isediting);
+                },
               ),
               // IconButton(
               //     icon: Icon(
@@ -677,6 +681,20 @@ class _DetallesOTState extends State<DetallesOT>
     setState(() {
       editarbol = true;
     });
+  }
+
+  cambioIcono(bool isediting) {
+    if (isediting == false) {
+      return Icon(
+        Icons.mode_edit,
+        color: colorLabelTab,
+      );
+    } else {
+      return Icon(
+        Icons.check,
+        color: colorLabelTab,
+      );
+    }
   }
 }
 
