@@ -1,6 +1,7 @@
 import 'package:expeditor_app/api.dart';
 import 'package:expeditor_app/src/pages/ordenes_page.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -156,23 +157,50 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         onPressed: () async {
-          // final route = MaterialPageRoute(builder: (context) => OrdenesPage());
-          // Navigator.push(context, route);
-          if (_formkey.currentState.validate()) {
-            var email = emailController.text;
-            var password = passwordController.text;
-            setState(() {
-              message = 'Please Wait';
-            });
+          var email = emailController.text;
+          var password = passwordController.text;
+          if (email.isEmpty || password.isEmpty) {
+            Fluttertoast.showToast(
+                msg: "Campos Vacios ..",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.TOP,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.white,
+                textColor: Colors.black,
+                fontSize: 14.0);
+          } else {
+            Fluttertoast.showToast(
+                msg: "Validando credenciales ...",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.TOP,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.white,
+                textColor: Colors.black,
+                fontSize: 14.0);
             var rsp = await loginUser(email, password);
             if (rsp['code'] == 200) {
+              Fluttertoast.showToast(
+                  msg: "Loguin Exitoso",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.TOP,
+                  timeInSecForIosWeb: 1,
+                  backgroundColor: Colors.blue[300],
+                  textColor: Colors.white,
+                  fontSize: 14.0);
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return OrdenesPage(
                   token: rsp['message'],
                 );
               }));
             } else {
-              print('Usuario o Contraseña Invalido');
+              Fluttertoast.showToast(
+                  msg: "Credenciales Invalidos. Vuelva a intentarlo porfavor.",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.TOP,
+                  timeInSecForIosWeb: 1,
+                  backgroundColor: Colors.red[300],
+                  textColor: Colors.white,
+                  fontSize: 14.0);
             }
           }
         },

@@ -4,6 +4,7 @@ import 'package:expeditor_app/src/pages/detallesot_page.dart';
 import 'package:expeditor_app/src/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:expeditor_app/api.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 
@@ -505,6 +506,14 @@ class _OrdenesPageState extends State<OrdenesPage> {
   }
 
   void cerrarSesion() {
+    Fluttertoast.showToast(
+        msg: "Cerrando Sesion ..",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.white,
+        textColor: Colors.black,
+        fontSize: 14.0);
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return LoginPage();
     }));

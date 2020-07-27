@@ -5,6 +5,7 @@ import 'package:expeditor_app/src/models/imagenes_model.dart';
 import 'package:expeditor_app/src/models/materiales_model.dart';
 import 'package:expeditor_app/src/models/orden_model.dart';
 import 'package:expeditor_app/src/pages/detallemat_page.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -748,6 +749,14 @@ class _ImagePageState extends State<ImagePage> {
 
   guardarFoto(
       File foto, String token, String idot, BuildContext context) async {
+    Fluttertoast.showToast(
+        msg: "Guardando fotografia ...",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.white,
+        textColor: Colors.black,
+        fontSize: 14.0);
     var rsp = await subirFoto(foto, token, idot);
     if (rsp.data['code'] == 200 || rsp.data['code'] == "200") {
       showDialog<String>(
