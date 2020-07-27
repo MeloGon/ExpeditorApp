@@ -62,6 +62,10 @@ class _DetallesOTState extends State<DetallesOT>
   ScrollController _scrollController = new ScrollController();
   List<MaterialModel> listaMaterialesToda = new List<MaterialModel>();
   List<MaterialModel> listaMaterialesTodaFiltrada = new List<MaterialModel>();
+  String btnText;
+  List<int> idfotos = [];
+  bool isediting = false;
+  String nuevaDescri;
 
   @override
   void initState() {
@@ -69,13 +73,6 @@ class _DetallesOTState extends State<DetallesOT>
     ids = [];
     _loadImageIds();
     _scrollController = new ScrollController(initialScrollOffset: 300);
-    // cargarMateriales(widget.token, widget.nroot).then((value) {
-    //   setState(() {
-    //     listaMaterialesToda = value;
-    //     listaMaterialesTodaFiltrada = listaMaterialesToda;
-    //     cantidadMateriales = listaMaterialesToda.length;
-    //   });
-    // });
     super.initState();
   }
 
@@ -102,6 +99,7 @@ class _DetallesOTState extends State<DetallesOT>
         cantidadMateriales = listaMaterialesToda.length;
       });
     });
+
     return Scaffold(
       body: DefaultTabController(
         length: 2,
@@ -627,7 +625,7 @@ class _DetallesOTState extends State<DetallesOT>
   }
 
   Widget listFotos(ImagenModel img) {
-    bool isediting = false;
+    // var x = InputBorder.none;
     return ListTile(
       leading: GestureDetector(
         child: FadeInImage(
@@ -648,7 +646,18 @@ class _DetallesOTState extends State<DetallesOT>
           );
         },
       ),
-      title: txtdescr(img),
+      // title: txtdescr(img.descripcion),
+      title: TextField(
+        enabled: isediting,
+        decoration: InputDecoration(
+            border: InputBorder.none, hintText: img.descripcion),
+        style: TextStyle(fontFamily: 'fuente72', fontSize: 14),
+        onChanged: (value) {
+          setState(() {
+            nuevaDescri = value;
+          });
+        },
+      ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -658,16 +667,38 @@ class _DetallesOTState extends State<DetallesOT>
           ),
           Row(
             children: <Widget>[
-              IconButton(
-                icon: cambioIcono(isediting),
-                onPressed: () {
-                  editarNombre();
-                  setState(() {
-                    isediting = true;
-                  });
-                  cambioIcono(isediting);
-                },
-              ),
+              FlatButton(
+                  child: Text(
+                    btnText == null || !idfotos.contains(img.id)
+                        ? 'EDITAR'
+                        : btnText,
+                    style:
+                        TextStyle(color: colorLabelTab, fontFamily: 'fuente72'),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      if (btnText == "ACEPTAR") {
+                        isediting = !isediting;
+                        Fluttertoast.showToast(
+                            msg: "Espere un momento porfavor ..",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.grey[200],
+                            textColor: Colors.black,
+                            fontSize: 14.0);
+                        editarDescripcion(
+                            widget.token, idfotos[0], nuevaDescri);
+                        idfotos.clear();
+                        btnText = null;
+                      } else {
+                        isediting = !isediting;
+                        btnText = "ACEPTAR";
+                        idfotos.add(img.id);
+                        nuevaDescri = null;
+                      }
+                    });
+                  })
               // IconButton(
               //     icon: Icon(
               //       Icons.delete_outline,
@@ -681,32 +712,17 @@ class _DetallesOTState extends State<DetallesOT>
     );
   }
 
-  Widget txtdescr(ImagenModel img) {
-    return TextField(
-      enabled: editarbol,
-      controller: TextEditingController(text: img.descripcion),
-      decoration: InputDecoration(border: InputBorder.none),
-      style: TextStyle(fontFamily: 'fuente72', fontSize: 14),
-    );
-  }
-
-  editarNombre() {
-    setState(() {
-      editarbol = true;
-    });
-  }
-
-  cambioIcono(bool isediting) {
-    if (isediting == false) {
-      return Icon(
-        Icons.mode_edit,
-        color: colorLabelTab,
-      );
-    } else {
-      return Icon(
-        Icons.check,
-        color: colorLabelTab,
-      );
+  editarDescripcion(String token, int idfoto, String descri) async {
+    var rsp = await editarDescri(token, idfoto, descri);
+    if (rsp['code'] == 200) {
+      Fluttertoast.showToast(
+          msg: "Descripcion editada exitosamente",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey[200],
+          textColor: Colors.black,
+          fontSize: 14.0);
     }
   }
 }

@@ -150,6 +150,22 @@ Future subirFoto(File imagen, String token, String id) async {
   return response;
 }
 
+Future editarDescri(String token, int id, String descrinueva) async {
+  String url =
+      'https://innovadis.net.pe/apiExpeditorPruebas/public/materiales/editarImagen';
+
+  final response = await http.post(url, headers: {
+    "Accept": "application/json",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Authorization": token,
+  }, body: {
+    'json': '{"id":' + id.toString() + ',"descripcion":"' + descrinueva + '"}',
+  });
+  var convertedDatatoJson = jsonDecode(response.body);
+  print(convertedDatatoJson);
+  return convertedDatatoJson;
+}
+
 // Future getfiltros(String token) async {
 //   String url = 'https://innovadis.net.pe/apiExpeditor/public/datos_filtros';
 

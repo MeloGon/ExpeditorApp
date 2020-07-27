@@ -11,13 +11,14 @@ String imagenModelToJson(ImagenModel data) => json.encode(data.toJson());
 
 class ImagenModel {
   ImagenModel({
+    this.id,
     this.url,
     this.descripcion,
     this.peso,
     this.ancho,
     this.alto,
   });
-
+  int id;
   String url;
   String descripcion;
   int peso;
@@ -25,6 +26,7 @@ class ImagenModel {
   int alto;
 
   factory ImagenModel.fromJson(Map<String, dynamic> json) => ImagenModel(
+        id: json["id"],
         url: json["url"],
         descripcion: json["descripcion"],
         peso: json["peso"],
@@ -33,6 +35,7 @@ class ImagenModel {
       );
 
   Map<String, dynamic> toJson() => {
+        "id": id,
         "url": url,
         "descripcion": descripcion,
         "peso": peso,
