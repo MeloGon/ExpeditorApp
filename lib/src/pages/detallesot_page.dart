@@ -559,6 +559,7 @@ class _DetallesOTState extends State<DetallesOT>
     final _picker = ImagePicker();
     final pickedFile = await _picker.getImage(
       source: ImageSource.gallery,
+      imageQuality: 78,
     );
     try {
       foto = File(pickedFile.path);
@@ -583,6 +584,7 @@ class _DetallesOTState extends State<DetallesOT>
     final _picker = ImagePicker();
     final pickedFile = await _picker.getImage(
       source: ImageSource.camera,
+      imageQuality: 78,
     );
     try {
       foto = File(pickedFile.path);
