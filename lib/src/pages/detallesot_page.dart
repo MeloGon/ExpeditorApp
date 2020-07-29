@@ -306,7 +306,7 @@ class _DetallesOTState extends State<DetallesOT>
     return ListTile(
       onTap: () async {
         await Navigator.push(context, MaterialPageRoute(builder: (context) {
-          print(material.notas);
+          print(material.incidencia);
           return DetalleMatPage(
             token: widget.token,
             idmate: '${material.id}',
@@ -559,6 +559,8 @@ class _DetallesOTState extends State<DetallesOT>
     final pickedFile = await _picker.getImage(
       source: ImageSource.gallery,
       imageQuality: 78,
+      maxHeight: 768,
+      maxWidth: 1024,
     );
     try {
       foto = File(pickedFile.path);
@@ -584,6 +586,8 @@ class _DetallesOTState extends State<DetallesOT>
     final pickedFile = await _picker.getImage(
       source: ImageSource.camera,
       imageQuality: 78,
+      maxHeight: 768,
+      maxWidth: 1024,
     );
     try {
       foto = File(pickedFile.path);
@@ -698,7 +702,27 @@ class _DetallesOTState extends State<DetallesOT>
                         nuevaDescri = null;
                       }
                     });
-                  })
+                  }),
+              FlatButton(
+                child: Text('ELIMINAR',
+                    style: TextStyle(
+                      color: colorLabelTab,
+                      fontFamily: 'fuente72',
+                    )),
+                onPressed: () {
+                  setState(() {
+                    Fluttertoast.showToast(
+                        msg: "Espere un momento porfavor ..",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.CENTER,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.grey[200],
+                        textColor: Colors.black,
+                        fontSize: 14.0);
+                    eliminarFoto(widget.token, img.id);
+                  });
+                },
+              )
               // IconButton(
               //     icon: Icon(
               //       Icons.delete_outline,
@@ -717,6 +741,20 @@ class _DetallesOTState extends State<DetallesOT>
     if (rsp['code'] == 200) {
       Fluttertoast.showToast(
           msg: "Descripcion editada exitosamente",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey[200],
+          textColor: Colors.black,
+          fontSize: 14.0);
+    }
+  }
+
+  eliminarFoto(String token, int idfoto) async {
+    var rsp = await eliminarPic(token, idfoto);
+    if (rsp['code'] == 200) {
+      Fluttertoast.showToast(
+          msg: "Fotografia eliminada exitosamente",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 1,

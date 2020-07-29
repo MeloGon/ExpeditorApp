@@ -1,4 +1,5 @@
 import 'package:expeditor_app/api.dart';
+import 'package:expeditor_app/src/models/incidencia_model.dart';
 import 'package:expeditor_app/src/pages/detallesot_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -37,15 +38,8 @@ class DetalleMatPage extends StatefulWidget {
 class _DetalleMatPageState extends State<DetalleMatPage> {
   String _opcionSeleccionada;
   int cod_incidencia;
-  List<String> _poderes = [
-    'ST - Sin stock',
-    'SU - Sin ubicación',
-    'TR - En Transito',
-    'PS - Patio salvataje',
-    'TE - En terreno',
-    'RB - Retiro desde Bodega',
-    'Sin incidencia',
-  ];
+
+  List<IncidenciaModel> _poderes = [];
   int prueba = 4;
   String nota_enviar = "";
   int cantParse;
@@ -60,26 +54,15 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
   void initState() {
     super.initState();
 
-    if (widget.incidencia.contains("ST - Sin stock")) {
-      _opcionSeleccionada = "ST - Sin stock";
-    }
-    if (widget.incidencia.contains("SU - Sin ubicación")) {
-      _opcionSeleccionada = "SU - Sin ubicación";
-    }
-    if (widget.incidencia.contains("TR - En Transito")) {
-      _opcionSeleccionada = "TR - En Transito";
-    }
-    if (widget.incidencia.contains("PS - Patio salvataje")) {
-      _opcionSeleccionada = "PS - Patio salvataje";
-    }
-    if (widget.incidencia.contains("TE - En terreno")) {
-      _opcionSeleccionada = "TE - En terreno";
-    }
-    if (widget.incidencia.contains("RB - Retiro desde Bodega")) {
-      _opcionSeleccionada = "RB - Retiro desde Bodega";
-    }
+    getfiltros(widget.token).then((value) {
+      setState(() {
+        _poderes = value;
+      });
+    });
+
+    _opcionSeleccionada = widget.incidencia;
+
     setState(() {
-      print(widget.nota);
       _controller = new TextEditingController(text: widget.nota.toString());
       if (int.parse(widget.canten) == 0) {
         cantParse = int.parse(widget.cantre);
@@ -291,34 +274,13 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
   }
 
   Widget _inputIncidencia() {
-    if (_opcionSeleccionada == 'ST - Sin stock') {
-      cod_incidencia = 1;
-      print(cod_incidencia);
-    }
-    if (_opcionSeleccionada == 'SU - Sin ubicación') {
-      cod_incidencia = 2;
-      print(cod_incidencia);
-    }
-    if (_opcionSeleccionada == '"TR - En Transito') {
-      cod_incidencia = 3;
-      print(cod_incidencia);
-    }
-    if (_opcionSeleccionada == 'PS - Patio salvataje') {
-      cod_incidencia = 4;
-      print(cod_incidencia);
-    }
-    if (_opcionSeleccionada == 'TE - En terreno') {
-      cod_incidencia = 5;
-      print(cod_incidencia);
-    }
-    if (_opcionSeleccionada == 'RB - Retiro desde Bodega') {
-      cod_incidencia = 6;
-      print(cod_incidencia);
-    }
-    if (_opcionSeleccionada == 'Sin incidencia') {
-      cod_incidencia = 0;
-      print(cod_incidencia);
-    }
+    _poderes.forEach((element) {
+      if (_opcionSeleccionada == element.descripcion) {
+        cod_incidencia = element.id;
+        print('el nuevo codigo es' + cod_incidencia.toString());
+      }
+    });
+
     return Padding(
       padding: EdgeInsets.only(left: 1, right: 1),
       child: Container(
@@ -326,7 +288,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
         decoration: BoxDecoration(
             border: Border.all(color: Hexcolor('#89919A'), width: 0.9)),
         child: DropdownButton(
-          hint: Text('Seleccione'),
+          hint: Text('Seleccione ...'),
           style: TextStyle(fontFamily: 'fuente72', color: Colors.black),
           value: _opcionSeleccionada,
           icon: Icon(
@@ -337,36 +299,20 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
           items: getOpcionesDropdown(),
           onChanged: (opt) {
             setState(() {
+              print(opt);
               _opcionSeleccionada = opt;
             });
-            if (_opcionSeleccionada == 'ST - Sin stock') {
-              cod_incidencia = 1;
-              print(cod_incidencia);
-            }
-            if (_opcionSeleccionada == 'SU - Sin ubicación') {
-              cod_incidencia = 2;
-              print(cod_incidencia);
-            }
-            if (_opcionSeleccionada == '"TR - En Transito') {
-              cod_incidencia = 3;
-              print(cod_incidencia);
-            }
-            if (_opcionSeleccionada == 'PS - Patio salvataje') {
-              cod_incidencia = 4;
-              print(cod_incidencia);
-            }
-            if (_opcionSeleccionada == 'TE - En terreno') {
-              cod_incidencia = 5;
-              print(cod_incidencia);
-            }
-            if (_opcionSeleccionada == 'RB - Retiro desde Bodega') {
-              cod_incidencia = 6;
-              print(cod_incidencia);
-            }
-            if (_opcionSeleccionada == 'Sin incidencia') {
-              cod_incidencia = 0;
-              print(cod_incidencia);
-            }
+
+            _poderes.forEach((element) {
+              if (_opcionSeleccionada == element.descripcion) {
+                cod_incidencia = element.id;
+                print('el nuevo codigo es' + cod_incidencia.toString());
+              }
+              if (_opcionSeleccionada == "Sin incidencia") {
+                cod_incidencia = 0;
+                print('sin inci' + cod_incidencia.toString());
+              }
+            });
           },
         ),
       ),
@@ -378,8 +324,8 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
 
     _poderes.forEach((poder) {
       lista.add(DropdownMenuItem(
-        child: Text(poder),
-        value: poder,
+        child: Text(poder.descripcion),
+        value: poder.descripcion,
       ));
     });
 

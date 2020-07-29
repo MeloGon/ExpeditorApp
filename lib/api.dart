@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:expeditor_app/src/models/imagenes_model.dart';
+import 'package:expeditor_app/src/models/incidencia_model.dart';
 import 'package:expeditor_app/src/models/materiales_model.dart';
 import 'package:expeditor_app/src/models/orden_model.dart';
 import 'package:http/http.dart' as http;
@@ -130,7 +131,6 @@ Future editarCantidad(
   });
 
   var convertedJson = jsonDecode(response.body);
-  print(convertedJson);
   return convertedJson;
 }
 
@@ -146,7 +146,6 @@ Future subirFoto(File imagen, String token, String id) async {
   dio.options.headers["authorization"] = token;
   final response = await dio.post(url, data: formData);
 
-  print(response);
   return response;
 }
 
@@ -162,21 +161,39 @@ Future editarDescri(String token, int id, String descrinueva) async {
     'json': '{"id":' + id.toString() + ',"descripcion":"' + descrinueva + '"}',
   });
   var convertedDatatoJson = jsonDecode(response.body);
-  print(convertedDatatoJson);
   return convertedDatatoJson;
 }
 
-// Future getfiltros(String token) async {
-//   String url = 'https://innovadis.net.pe/apiExpeditor/public/datos_filtros';
+Future eliminarPic(String token, int id) async {
+  String url =
+      "https://innovadis.net.pe/apiExpeditorPruebas/public/materiales/eliminarImagen/" +
+          id.toString();
 
-//   final response = await http.get(url, headers: {
-//     "Accept": "application/json",
-//     "Content-Type": "application/x-www-form-urlencoded",
-//     "Authorization": token,
-//   });
+  Dio dio = new Dio();
+  dio.options.headers['content-Type'] = 'application/json';
+  dio.options.headers["authorization"] = token;
+  final response = await dio.delete(url);
+  return response;
+}
 
-//   if (response.body.isNotEmpty) {
-//     var convertedDatatoJson = jsonDecode(response.body.toString());
-//     return convertedDatatoJson;
-//   }
-// }
+Future<List<IncidenciaModel>> getfiltros(String token) async {
+  // String url = 'https://innovadis.net.pe/apiExpeditor/public/datos_filtros';
+  String url =
+      'https://innovadis.net.pe/apiExpeditorPruebas/public/datos_filtros';
+
+  final response = await http.get(url, headers: {
+    "Accept": "application/json",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Authorization": token,
+  });
+
+  final List<IncidenciaModel> incidencias = new List();
+  var receivedJson = json.decode(response.body);
+  (receivedJson['incidencias'] as List)
+      .map((p) => IncidenciaModel.fromJson(p))
+      .toList()
+      .forEach((element) {
+    incidencias.add(element);
+  });
+  return incidencias;
+}
