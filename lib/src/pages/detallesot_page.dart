@@ -297,7 +297,7 @@ class _DetallesOTState extends State<DetallesOT>
       physics: ScrollPhysics(),
       scrollDirection: Axis.vertical,
       itemBuilder: (context, index) {
-        return listMats(listaMaterialesToda[index]);
+        return listMats(listaMaterialesTodaFiltrada[index]);
       },
     );
   }
@@ -444,8 +444,7 @@ class _DetallesOTState extends State<DetallesOT>
             children: <Widget>[
               Expanded(
                 child: Text(
-                  'Lineas de Materiales (' +
-                      '${cantidadMateriales ?? "Estimando .."})',
+                  'Lineas de Materiales (' + '${cantidadMateriales ?? "0"})',
                   style: TextStyle(fontSize: 18.0, fontFamily: 'fuente72'),
                 ),
               ),

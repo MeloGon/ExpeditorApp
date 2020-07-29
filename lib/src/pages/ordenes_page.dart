@@ -430,7 +430,6 @@ class _OrdenesPageState extends State<OrdenesPage> {
           TextField(
             onChanged: (value) {
               setState(() {
-                print(value);
                 listaOrdenTodaFiltrada = listaOrdenToda
                     .where((u) => (u.nroOt
                             .toLowerCase()

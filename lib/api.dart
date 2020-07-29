@@ -8,9 +8,10 @@ import 'package:expeditor_app/src/models/orden_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+//para pruebas cambiar el url por apiExpeditorPruebas en ves de apiExpeditor
+
 Future loginUser(String email, String password) async {
-  String url =
-      'https://innovadis.net.pe/apiExpeditorPruebas/public/usuarios/login';
+  String url = 'https://innovadis.net.pe/apiExpeditor/public/usuarios/login';
 
   final response = await http.post(url, headers: {
     "Accept": "application/json",
@@ -27,8 +28,7 @@ Future loginUser(String email, String password) async {
 }
 
 Future<List<OrdenModel>> cargarOrdenes(String token) async {
-  String url =
-      'https://innovadis.net.pe/apiExpeditorPruebas/public/orden_trabajo';
+  String url = 'https://innovadis.net.pe/apiExpeditor/public/orden_trabajo';
   final response = await http.get(url, headers: {
     "Accept": "application/json",
     "Content-Type": "application/x-www-form-urlencoded",
@@ -53,8 +53,7 @@ Future<List<OrdenModel>> cargarOrdenes(String token) async {
 
 Future<OrdenModel> getDetalles(String token, String nroot) async {
   String url =
-      'https://innovadis.net.pe/apiExpeditorPruebas/public/orden_trabajo/' +
-          nroot;
+      'https://innovadis.net.pe/apiExpeditor/public/orden_trabajo/' + nroot;
   final response = await http.get(
     url,
     headers: {
@@ -70,8 +69,7 @@ Future<OrdenModel> getDetalles(String token, String nroot) async {
 
 Future<List<MaterialModel>> cargarMateriales(String token, String nroot) async {
   String url =
-      'https://innovadis.net.pe/apiExpeditorPruebas/public/orden_trabajo/' +
-          nroot;
+      'https://innovadis.net.pe/apiExpeditor/public/orden_trabajo/' + nroot;
   final response = await http.get(url, headers: {
     "Accept": "application/json",
     "Content-type": "application/x-www-form-urlencoded",
@@ -91,8 +89,7 @@ Future<List<MaterialModel>> cargarMateriales(String token, String nroot) async {
 
 Future<List<ImagenModel>> cargarFotos(String token, String nroot) async {
   String url =
-      'https://innovadis.net.pe/apiExpeditorPruebas/public/orden_trabajo/' +
-          nroot;
+      'https://innovadis.net.pe/apiExpeditor/public/orden_trabajo/' + nroot;
   final response = await http.get(url, headers: {
     "Accept": "application/json",
     "Content-type": "application/x-www-form-urlencoded",
@@ -112,8 +109,7 @@ Future<List<ImagenModel>> cargarFotos(String token, String nroot) async {
 
 Future editarCantidad(
     String token, int idmat, int canten, int inci, String nota) async {
-  String url =
-      'https://innovadis.net.pe/apiExpeditorPruebas/public/materiales/editar';
+  String url = 'https://innovadis.net.pe/apiExpeditor/public/materiales/editar';
   final response = await http.put(url, headers: {
     "Accept": "application/json",
     "Content-type": "application/x-www-form-urlencoded",
@@ -136,7 +132,7 @@ Future editarCantidad(
 
 Future subirFoto(File imagen, String token, String id) async {
   String url =
-      'https://innovadis.net.pe/apiExpeditorPruebas/public/materiales/subirImagen/' +
+      'https://innovadis.net.pe/apiExpeditor/public/materiales/subirImagen/' +
           id;
   FormData formData = new FormData.fromMap(
       {"file0": await MultipartFile.fromFile(imagen.path)});
@@ -151,7 +147,7 @@ Future subirFoto(File imagen, String token, String id) async {
 
 Future editarDescri(String token, int id, String descrinueva) async {
   String url =
-      'https://innovadis.net.pe/apiExpeditorPruebas/public/materiales/editarImagen';
+      'https://innovadis.net.pe/apiExpeditor/public/materiales/editarImagen';
 
   final response = await http.post(url, headers: {
     "Accept": "application/json",
@@ -166,7 +162,7 @@ Future editarDescri(String token, int id, String descrinueva) async {
 
 Future eliminarPic(String token, int id) async {
   String url =
-      "https://innovadis.net.pe/apiExpeditorPruebas/public/materiales/eliminarImagen/" +
+      "https://innovadis.net.pe/apiExpeditor/public/materiales/eliminarImagen/" +
           id.toString();
 
   Dio dio = new Dio();
@@ -178,8 +174,7 @@ Future eliminarPic(String token, int id) async {
 
 Future<List<IncidenciaModel>> getfiltros(String token) async {
   // String url = 'https://innovadis.net.pe/apiExpeditor/public/datos_filtros';
-  String url =
-      'https://innovadis.net.pe/apiExpeditorPruebas/public/datos_filtros';
+  String url = 'https://innovadis.net.pe/apiExpeditor/public/datos_filtros';
 
   final response = await http.get(url, headers: {
     "Accept": "application/json",
