@@ -306,7 +306,7 @@ class _DetallesOTState extends State<DetallesOT>
     return ListTile(
       onTap: () async {
         await Navigator.push(context, MaterialPageRoute(builder: (context) {
-          print(material.incidencia);
+          print('laincidencia es' + material.incidencia.toString());
           return DetalleMatPage(
             token: widget.token,
             idmate: '${material.id}',

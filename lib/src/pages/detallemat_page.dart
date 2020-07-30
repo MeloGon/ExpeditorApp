@@ -41,7 +41,6 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
 
   List<IncidenciaModel> _poderes = [];
   int prueba = 4;
-  String nota_enviar = "";
   int cantParse;
   String notaa;
   Color _colorTitle = Color(0xff6A6D70);
@@ -288,9 +287,10 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
         decoration: BoxDecoration(
             border: Border.all(color: Hexcolor('#89919A'), width: 0.9)),
         child: DropdownButton(
-          hint: Text('Seleccione ...'),
+          // hint: Text('Seleccione ...'),
+          hint: Text('$_opcionSeleccionada'),
           style: TextStyle(fontFamily: 'fuente72', color: Colors.black),
-          value: _opcionSeleccionada,
+          //value: _opcionSeleccionada ?? _poderes.first.descripcion,
           icon: Icon(
             Icons.arrow_drop_down,
             color: _iconColor,
@@ -328,6 +328,8 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
         value: poder.descripcion,
       ));
     });
+
+    print(lista);
 
     return lista;
   }

@@ -35,7 +35,7 @@ class MaterialModel {
   String lugar;
   String ubicacion;
   String unidad;
-  int chequeoSap;
+  dynamic chequeoSap;
   int cantNecesaria;
   int cantRetirada;
   int cantEntregada;
