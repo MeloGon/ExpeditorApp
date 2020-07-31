@@ -60,6 +60,9 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
     });
 
     _opcionSeleccionada = widget.incidencia;
+    if (_opcionSeleccionada == "null") {
+      _opcionSeleccionada = "Seleccione";
+    }
 
     setState(() {
       _controller = new TextEditingController(text: widget.nota.toString());
