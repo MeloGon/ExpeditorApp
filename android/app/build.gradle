@@ -42,14 +42,14 @@ android {
     }
 
     defaultConfig {
-        //version code incrementar cada vez de un despliegue en la playstore (ya usaste 1 2 3)
+        //version code incrementar cada vez de un despliegue en la playstore (ya usaste 1 2 3 4)
         //version name lo que ve el usuario
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.innovadis.expeditor"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 3
-        versionName "1.0.3"
+        versionCode 4
+        versionName "1.0.4"
     }
 
        signingConfigs {
