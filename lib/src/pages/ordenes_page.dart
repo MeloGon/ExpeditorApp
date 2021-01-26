@@ -61,6 +61,7 @@ class _OrdenesPageState extends State<OrdenesPage> {
   String _fecha = '';
   String _opcionSeleccionada;
   String filtroBusqueda = "";
+  String a;
 
   List<OrdenModel> listaOrdenToda = new List<OrdenModel>();
   List<OrdenModel> listaOrdenTodaFiltrada = new List<OrdenModel>();
@@ -255,6 +256,15 @@ class _OrdenesPageState extends State<OrdenesPage> {
       padding: EdgeInsets.only(left: 5),
       child: ListTile(
         onTap: () async {
+          Fluttertoast.showToast(
+              msg: "Ingresando a la OT",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.white,
+              textColor: Colors.black,
+              fontSize: 14.0);
+          a = await numeroMateriales(widget.token, orden.nroOt);
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return DetallesOT(
               token: widget.token,
@@ -269,6 +279,7 @@ class _OrdenesPageState extends State<OrdenesPage> {
               cantreque: '${orden.cantEntregada}',
               cumpli: '${orden.cumplimiento}',
               fechamovi: '${orden.fechaMovilizacion}',
+              cantmat: a,
             );
           }));
         },

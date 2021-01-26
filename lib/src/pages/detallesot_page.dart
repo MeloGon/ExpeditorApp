@@ -5,6 +5,7 @@ import 'package:expeditor_app/src/models/imagenes_model.dart';
 import 'package:expeditor_app/src/models/materiales_model.dart';
 import 'package:expeditor_app/src/models/orden_model.dart';
 import 'package:expeditor_app/src/pages/detallemat_page.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:http/http.dart' as http;
@@ -24,7 +25,8 @@ class DetallesOT extends StatefulWidget {
       cantnece,
       cantreque,
       cumpli,
-      fechamovi;
+      fechamovi,
+      cantmat;
   DetallesOT(
       {this.token,
       this.nroot,
@@ -37,7 +39,8 @@ class DetallesOT extends StatefulWidget {
       this.cantnece,
       this.cantreque,
       this.cumpli,
-      this.fechamovi});
+      this.fechamovi,
+      this.cantmat});
   @override
   _DetallesOTState createState() => _DetallesOTState();
 }
@@ -66,14 +69,27 @@ class _DetallesOTState extends State<DetallesOT>
   List<int> idfotos = [];
   bool isediting = false;
   String nuevaDescri;
+  String cantMats;
 
   @override
   void initState() {
     loading = true;
     ids = [];
     _loadImageIds();
+    cargarMats();
     _scrollController = new ScrollController(initialScrollOffset: 300);
     super.initState();
+  }
+
+  cargarMats() async {
+    await cargarMateriales(widget.token, widget.nroot).then((value) {
+      setState(() {
+        listaMaterialesToda = value;
+        listaMaterialesTodaFiltrada = listaMaterialesToda;
+        cantidadMateriales = listaMaterialesTodaFiltrada.length;
+        print('cantidad de materiales $cantidadMateriales');
+      });
+    });
   }
 
   void _loadImageIds() async {
@@ -91,14 +107,20 @@ class _DetallesOTState extends State<DetallesOT>
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    cargarMateriales(widget.token, widget.nroot).then((value) {
-      setState(() {
-        listaMaterialesToda = value;
-        listaMaterialesTodaFiltrada = listaMaterialesToda;
-        cantidadMateriales = listaMaterialesToda.length;
-      });
-    });
+    // cargarMateriales(widget.token, widget.nroot).then((value) {
+    //   setState(() {
+    //     listaMaterialesToda = value;
+    //     listaMaterialesTodaFiltrada = listaMaterialesToda;
+    //     cantidadMateriales = listaMaterialesToda.length;
+    //   });
+    // });
 
     return Scaffold(
       body: DefaultTabController(
@@ -136,7 +158,7 @@ class _DetallesOTState extends State<DetallesOT>
                       unselectedLabelColor: Colors.grey,
                       tabs: [
                         Tab(
-                          text: "Materiales",
+                          text: "Materiales ${widget.cantmat}",
                         ),
                         Tab(text: "Fotos"),
                       ],
@@ -400,7 +422,7 @@ class _DetallesOTState extends State<DetallesOT>
         ],
       ),
       trailing: Container(
-        width: 52,
+        width: 53,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
@@ -440,16 +462,6 @@ class _DetallesOTState extends State<DetallesOT>
       height: 115.0,
       child: Column(
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Text(
-                  'Lineas de Materiales (' + '${cantidadMateriales ?? "0"})',
-                  style: TextStyle(fontSize: 18.0, fontFamily: 'fuente72'),
-                ),
-              ),
-            ],
-          ),
           ListTile(
             title: _inputBuscar(),
           )

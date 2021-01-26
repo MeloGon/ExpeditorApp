@@ -40,6 +40,7 @@ Future<List<OrdenModel>> cargarOrdenes(String token) async {
   //final decodedData = json.decode(response.body)['data'];
   //final Map<String, dynamic> decodedData = json.decode(response.body)['data'];
   //var receivedJson = json.decode(response.body.toString());
+
   if (response.body.isNotEmpty) {
     var receivedJson = json.decode(response.body.toString());
     (receivedJson['data'] as List)
@@ -89,6 +90,29 @@ Future<List<MaterialModel>> cargarMateriales(String token, String nroot) async {
     materiales.add(element);
   });
   return materiales;
+}
+
+Future<String> numeroMateriales(String token, String nroot) async {
+  String url =
+      'https://innovadis.net.pe/apiExpeditorPruebas/public/orden_trabajo/' +
+          nroot;
+  final response = await http.get(url, headers: {
+    "Accept": "application/json",
+    "Content-type": "application/x-www-form-urlencoded",
+    "Authorization": token,
+  });
+  List<dynamic> lista = json.decode(response.body)['data']['materiales'];
+  print(lista.length);
+
+  final List<MaterialModel> materiales = new List();
+  var receivedJson = json.decode(response.body);
+  (receivedJson['data']['materiales'] as List)
+      .map((p) => MaterialModel.fromJson(p))
+      .toList()
+      .forEach((element) {
+    materiales.add(element);
+  });
+  return materiales.length.toString();
 }
 
 Future<List<ImagenModel>> cargarFotos(String token, String nroot) async {
