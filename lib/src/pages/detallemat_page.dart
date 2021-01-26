@@ -1,8 +1,8 @@
 import 'package:expeditor_app/api.dart';
 import 'package:expeditor_app/src/models/incidencia_model.dart';
-import 'package:expeditor_app/src/pages/detallesot_page.dart';
+
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+
 import 'package:hexcolor/hexcolor.dart';
 
 class DetalleMatPage extends StatefulWidget {
@@ -48,6 +48,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
   Color sapColor = Color(0xff354A5F);
   Color _iconColor = Color(0xff0854a1);
   TextEditingController _controller;
+  TextEditingController _ctrCantEntregada;
 
   @override
   void initState() {
@@ -65,13 +66,24 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
     }
 
     setState(() {
-      _controller = new TextEditingController(text: widget.nota.toString());
+      _controller = new TextEditingController(
+          text: widget.nota.toString() == "null" ? "" : widget.nota.toString());
+
       if (int.parse(widget.canten) == 0) {
         cantParse = int.parse(widget.cantre);
+        _ctrCantEntregada = new TextEditingController(text: '$cantParse');
       } else {
         cantParse = int.parse(widget.canten);
+        _ctrCantEntregada = new TextEditingController(text: '$cantParse');
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _ctrCantEntregada.dispose();
+    super.dispose();
   }
 
   @override
@@ -267,7 +279,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
 
   Widget _inputCantidad() {
     return TextField(
-      controller: TextEditingController(text: '$cantParse'),
+      controller: _ctrCantEntregada,
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
           contentPadding: EdgeInsets.all(10),
@@ -291,7 +303,10 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
             border: Border.all(color: Hexcolor('#89919A'), width: 0.9)),
         child: DropdownButton(
           // hint: Text('Seleccione ...'),
-          hint: Text('$_opcionSeleccionada'),
+          hint: Text(
+            '$_opcionSeleccionada',
+            style: TextStyle(color: Colors.black),
+          ),
           style: TextStyle(fontFamily: 'fuente72', color: Colors.black),
           //value: _opcionSeleccionada ?? _poderes.first.descripcion,
           icon: Icon(
@@ -331,6 +346,11 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
         value: poder.descripcion,
       ));
     });
+
+    lista.add(DropdownMenuItem(
+      child: Text("Seleccione"),
+      value: "null",
+    ));
 
     print(lista);
 

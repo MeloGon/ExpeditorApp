@@ -2,6 +2,7 @@ import 'package:expeditor_app/api.dart';
 import 'package:expeditor_app/src/pages/ordenes_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -10,14 +11,27 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formkey = GlobalKey<FormState>();
-  final emailController = TextEditingController(text: '');
-  final passwordController = TextEditingController(text: '');
+  TextEditingController emailController = TextEditingController(text: '');
+  TextEditingController passwordController = TextEditingController(text: '');
   String message = '';
   Color _colorGradbeg = Color(0xffDFE3E4);
   Color _colorGradend = Color(0xffF3F4F5);
   Color _colorBoton = Color(0xff0A6ED1);
   TextStyle estiloTexto =
       TextStyle(fontFamily: 'fuente72', fontSize: 14, color: Color(0xff354A5F));
+
+  @override
+  void initState() {
+    cargarPref();
+    super.initState();
+  }
+
+  cargarPref() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    emailController = TextEditingController(text: prefs.get('correo'));
+    passwordController = TextEditingController(text: prefs.get('pwd'));
+    setState((){});
+  }
 
   @override
   void dispose() {
@@ -179,6 +193,9 @@ class _LoginPageState extends State<LoginPage> {
                 fontSize: 14.0);
             var rsp = await loginUser(email, password);
             if (rsp['code'] == 200) {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.setString('correo', email);
+              prefs.setString('pwd', password);
               Fluttertoast.showToast(
                   msg: "Loguin Exitoso",
                   toastLength: Toast.LENGTH_SHORT,
