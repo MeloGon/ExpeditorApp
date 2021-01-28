@@ -6,7 +6,9 @@ import 'package:expeditor_app/src/models/imagenes_model.dart';
 import 'package:expeditor_app/src/models/incidencia_model.dart';
 import 'package:expeditor_app/src/models/materiales_model.dart';
 import 'package:expeditor_app/src/models/orden_model.dart';
+import 'package:expeditor_app/src/models/usuario_model.dart';
 import 'package:http/http.dart' as http;
+
 import 'dart:convert';
 
 //para pruebas cambiar el url por apiExpeditorPruebas en ves de apiExpeditor
@@ -103,7 +105,7 @@ Future<String> numeroMateriales(String token, String nroot) async {
     "Authorization": token,
   });
   List<dynamic> lista = json.decode(response.body)['data']['materiales'];
-  print(lista.length);
+  // print(lista.length);
 
   final List<MaterialModel> materiales = new List();
   var receivedJson = json.decode(response.body);
@@ -116,7 +118,7 @@ Future<String> numeroMateriales(String token, String nroot) async {
   return materiales.length.toString();
 }
 
-Future<double> porcentajeCumpli(String token) async {
+Future<double> porcentajeCumpli(String token, int tipo) async {
   String url = 'https://innovadis.net.pe/apiExpeditorPruebas/public/graficos/';
   int totalCantNecesaria = 0;
   int totalCantEntregadas = 0;
@@ -127,16 +129,47 @@ Future<double> porcentajeCumpli(String token) async {
     "Authorization": token,
   });
 
-  var receivedJson = json.decode(response.body);
-  (receivedJson['data'] as List)
-      .map((p) => Grafico.fromJson(p))
-      .toList()
-      .forEach((element) {
-    totalCantNecesaria = totalCantNecesaria + element.cantNecesaria;
-    totalCantEntregadas = totalCantEntregadas + element.cantEntregada;
+  if (tipo == 3 || tipo == 4) {
+    var receivedJson = json.decode(response.body);
+    (receivedJson['data'] as List)
+        .map((p) => Grafico.fromJson(p))
+        .toList()
+        .forEach((element) {
+      totalCantNecesaria = totalCantNecesaria + element.cantNecesaria;
+      totalCantEntregadas = totalCantEntregadas + element.cantEntregada;
+    });
+    cumplimiento = (totalCantEntregadas / totalCantNecesaria) * 100;
+    return cumplimiento;
+  } else {
+    // List<String> empresas = [];
+    // (receivedJson['data'] as List)
+    //     .map((p) => Grafico.fromJson(p))
+    //     .toList()
+    //     .forEach((element) {
+    //   empresas.add(element.empresa);
+    // });
+    // print(empresas);
+    return 20;
+  }
+}
+
+Future tipoUsuario(String email, String password) async {
+  String url =
+      'https://innovadis.net.pe/apiExpeditorPruebas/public/usuarios/login';
+
+  final response = await http.post(url, headers: {
+    "Accept": "application/json",
+    "Content-Type": "application/x-www-form-urlencoded"
+  }, body: {
+    'json': '{"usuario":"' +
+        email +
+        '","contrasena":"' +
+        password +
+        '","gettoken":false}',
   });
-  cumplimiento = (totalCantEntregadas / totalCantNecesaria) * 100;
-  return cumplimiento;
+  //var convertedDatatoJson = jsonDecode(response.body);
+  Usuario user = Usuario.fromJson(json.decode(response.body)['message']);
+  return (user.usuarioTipoId);
 }
 
 // Future<String> cargarNotas(String token, int idmat) async {

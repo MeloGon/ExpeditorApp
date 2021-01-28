@@ -11,13 +11,15 @@ import 'package:intl/intl.dart';
 import 'dart:ui';
 
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:pie_chart/pie_chart.dart';
 
 //import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class MenuPage extends StatefulWidget {
   final String token;
   final double cumpli;
-  MenuPage({this.token, this.cumpli});
+  final int tipo;
+  MenuPage({this.token, this.cumpli, this.tipo});
   @override
   _MenuPageState createState() => _MenuPageState();
 }
@@ -64,9 +66,19 @@ class _MenuPageState extends State<MenuPage> {
   //final menuprovider = MenuProvider();
   final controllerchanges = new StreamController<dynamic>();
 
+  Map<String, double> dataMap = {
+    "Flutter": 5,
+    "React": 3,
+    "Xamarin": 2,
+    "Ionic": 2,
+  };
+
+  List<Color> listColors = [Colors.red, Colors.blue, Colors.purple];
+
   @override
   void initState() {
     porcentajeCumplido = widget.cumpli ?? 0;
+    print(widget.tipo);
     super.initState();
   }
 
@@ -210,6 +222,28 @@ class _MenuPageState extends State<MenuPage> {
       ),
     );
 
+    Widget _valuePercentAll = PieChart(
+      dataMap: dataMap,
+      animationDuration: Duration(milliseconds: 800),
+      chartLegendSpacing: 32,
+      chartRadius: MediaQuery.of(context).size.width / 3.2,
+      colorList: listColors,
+      initialAngleInDegree: 0,
+      chartType: ChartType.ring,
+      ringStrokeWidth: 9,
+      legendOptions: LegendOptions(
+        showLegendsInRow: false,
+        legendPosition: LegendPosition.right,
+        showLegends: true,
+      ),
+      chartValuesOptions: ChartValuesOptions(
+        showChartValueBackground: false,
+        showChartValues: true,
+        showChartValuesInPercentage: true,
+        showChartValuesOutside: true,
+      ),
+    );
+
     Widget _contentWe = Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
@@ -233,7 +267,11 @@ class _MenuPageState extends State<MenuPage> {
       defaultColumnWidth:
           FixedColumnWidth(MediaQuery.of(context).size.width * 0.5),
       children: [
-        TableRow(children: [roundButtonWidget(_contentWe)]),
+        TableRow(children: [
+          roundButtonWidget(widget.tipo == 1 || widget.tipo == 2
+              ? _valuePercentAll
+              : _contentWe)
+        ]),
       ],
     );
   }
