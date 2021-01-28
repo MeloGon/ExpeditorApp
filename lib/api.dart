@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:expeditor_app/src/models/grafico_model.dart';
 import 'package:expeditor_app/src/models/imagenes_model.dart';
 import 'package:expeditor_app/src/models/incidencia_model.dart';
 import 'package:expeditor_app/src/models/materiales_model.dart';
@@ -115,17 +116,27 @@ Future<String> numeroMateriales(String token, String nroot) async {
   return materiales.length.toString();
 }
 
-Future porcentajeCumpli(String token) async {
+Future<double> porcentajeCumpli(String token) async {
   String url = 'https://innovadis.net.pe/apiExpeditorPruebas/public/graficos/';
+  int totalCantNecesaria = 0;
+  int totalCantEntregadas = 0;
+  double cumplimiento = 0;
   final response = await http.get(url, headers: {
     "Accept": "application/json",
     "Content-type": "application/x-www-form-urlencoded",
     "Authorization": token,
   });
+
   var receivedJson = json.decode(response.body);
-  List lista = receivedJson['data']['cant_necesaria'] as List;
-  return lista;
-  //print(receivedJson['data']['cant_necesaria']);
+  (receivedJson['data'] as List)
+      .map((p) => Grafico.fromJson(p))
+      .toList()
+      .forEach((element) {
+    totalCantNecesaria = totalCantNecesaria + element.cantNecesaria;
+    totalCantEntregadas = totalCantEntregadas + element.cantEntregada;
+  });
+  cumplimiento = (totalCantEntregadas / totalCantNecesaria) * 100;
+  return cumplimiento;
 }
 
 // Future<String> cargarNotas(String token, int idmat) async {

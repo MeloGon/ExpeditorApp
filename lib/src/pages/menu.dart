@@ -16,7 +16,8 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class MenuPage extends StatefulWidget {
   final String token;
-  MenuPage({this.token});
+  final double cumpli;
+  MenuPage({this.token, this.cumpli});
   @override
   _MenuPageState createState() => _MenuPageState();
 }
@@ -31,8 +32,7 @@ class _MenuPageState extends State<MenuPage> {
   ];
 
   Color _appBarColor = Color(0xff354A5F);
-  dynamic cumplimiento;
-  List lista;
+  double porcentajeCumplido;
   // Color _subtitleColor = Color(0xff6A6D70);
   TextStyle _titleStyle = TextStyle(
       fontSize: 18.0,
@@ -66,17 +66,14 @@ class _MenuPageState extends State<MenuPage> {
 
   @override
   void initState() {
-    cargarCumplimiento();
+    porcentajeCumplido = widget.cumpli ?? 0;
     super.initState();
   }
 
-  cargarCumplimiento() async {
-    lista = await porcentajeCumpli(widget.token);
-    // print('esto es cumplimiento $cumplimiento');
-    lista.forEach((element) {
-      print(element);
-    });
-  }
+  // cargarCumplimiento() async {
+  //   porcentajeCumplido = await porcentajeCumpli(widget.token) / 100;
+  //   print(porcentajeCumplido);
+  // }
 
   @override
   void dispose() {
@@ -203,9 +200,9 @@ class _MenuPageState extends State<MenuPage> {
       padding: EdgeInsets.only(right: 20.0),
       child: CircularPercentIndicator(
         radius: 60.0,
-        lineWidth: 5.0,
-        percent: 0.81,
-        center: new Text("81%"),
+        lineWidth: 8.0,
+        percent: porcentajeCumplido,
+        center: new Text('${(porcentajeCumplido * 100).toStringAsFixed(0)}%'),
         progressColor: Colors.blue[300],
         backgroundColor: Colors.grey[200],
         animation: true,

@@ -197,6 +197,7 @@ class _LoginPageState extends State<LoginPage> {
               SharedPreferences prefs = await SharedPreferences.getInstance();
               prefs.setString('correo', email);
               prefs.setString('pwd', password);
+              double cumpli = await porcentajeCumpli(rsp['message']);
               Fluttertoast.showToast(
                   msg: "Loguin Exitoso",
                   toastLength: Toast.LENGTH_SHORT,
@@ -210,9 +211,11 @@ class _LoginPageState extends State<LoginPage> {
               //     token: rsp['message'],
               //   );
               // }));
+              print(cumpli);
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return MenuPage(
                   token: rsp['message'],
+                  cumpli: cumpli / 100,
                 );
               }));
             } else {
