@@ -1,4 +1,5 @@
 import 'package:expeditor_app/api.dart';
+import 'package:expeditor_app/src/pages/menu.dart';
 import 'package:expeditor_app/src/pages/ordenes_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -30,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     emailController = TextEditingController(text: prefs.get('correo'));
     passwordController = TextEditingController(text: prefs.get('pwd'));
-    setState((){});
+    setState(() {});
   }
 
   @override
@@ -204,8 +205,13 @@ class _LoginPageState extends State<LoginPage> {
                   backgroundColor: Colors.blue[300],
                   textColor: Colors.white,
                   fontSize: 14.0);
+              // Navigator.push(context, MaterialPageRoute(builder: (context) {
+              //   return OrdenesPage(
+              //     token: rsp['message'],
+              //   );
+              // }));
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return OrdenesPage(
+                return MenuPage(
                   token: rsp['message'],
                 );
               }));

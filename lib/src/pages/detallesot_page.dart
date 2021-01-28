@@ -344,7 +344,7 @@ class _DetallesOTState extends State<DetallesOT>
             nota: '${material.notas}',
           );
           //setState(() {});
-        }));
+        })).then((value) async => cargarMats());
       },
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

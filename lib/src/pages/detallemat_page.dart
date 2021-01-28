@@ -47,8 +47,8 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
   Color _colorSubtitle = Color(0xff32363A);
   Color sapColor = Color(0xff354A5F);
   Color _iconColor = Color(0xff0854a1);
-  TextEditingController _controller;
-  TextEditingController _ctrCantEntregada;
+  TextEditingController _controller = new TextEditingController(text: '');
+  TextEditingController _ctrCantEntregada = new TextEditingController(text: '');
 
   @override
   void initState() {
@@ -64,13 +64,15 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
     if (_opcionSeleccionada == "null") {
       _opcionSeleccionada = "Seleccione";
     }
-
+    notaa =
+        widget.nota == "null" || widget.nota == null ? "" : notaa = widget.nota;
+    print(widget.nota);
     setState(() {
-      _controller = new TextEditingController(
-          text: widget.nota.toString() == "null" ? "" : widget.nota.toString());
-
+      _controller = new TextEditingController(text: notaa);
+      print("canten ${widget.canten}");
+      print("centre ${widget.cantre}");
       if (int.parse(widget.canten) == 0) {
-        cantParse = int.parse(widget.cantre);
+        cantParse = 0;
         _ctrCantEntregada = new TextEditingController(text: '$cantParse');
       } else {
         cantParse = int.parse(widget.canten);
@@ -279,11 +281,17 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
 
   Widget _inputCantidad() {
     return TextField(
-      controller: _ctrCantEntregada,
+      controller: new TextEditingController.fromValue(new TextEditingValue(
+          text: cantParse.toString(),
+          selection: new TextSelection.collapsed(offset: notaa.length - 1))),
+      //controller: _ctrCantEntregada,
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
           contentPadding: EdgeInsets.all(10),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(2.0))),
+      onChanged: (value) {
+        cantParse = int.parse(value);
+      },
     );
   }
 
@@ -317,8 +325,8 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
           items: getOpcionesDropdown(),
           onChanged: (opt) {
             setState(() {
-              print(opt);
               _opcionSeleccionada = opt;
+              print('que opciones' + opt);
             });
 
             _poderes.forEach((element) {
@@ -326,8 +334,8 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                 cod_incidencia = element.id;
                 print('el nuevo codigo es' + cod_incidencia.toString());
               }
-              if (_opcionSeleccionada == "Sin incidencia") {
-                cod_incidencia = 0;
+              if (_opcionSeleccionada == "Seleccione") {
+                cod_incidencia = null;
                 print('sin inci' + cod_incidencia.toString());
               }
             });
@@ -349,22 +357,20 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
 
     lista.add(DropdownMenuItem(
       child: Text("Seleccione"),
-      value: "null",
+      value: "Seleccione",
     ));
-
-    print(lista);
 
     return lista;
   }
 
   Widget _inputNotas() {
     return TextField(
-      controller: _controller,
-      onChanged: (value) {
-        setState(() {
-          notaa = value;
-        });
-      },
+      //controller: _controller,
+      controller: new TextEditingController.fromValue(new TextEditingValue(
+          text: notaa,
+          selection: new TextSelection.collapsed(offset: notaa.length - 1))),
+      onChanged: (val) => notaa = val,
+
       decoration: InputDecoration(
           hintText: 'Escriba aqui',
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(2.0))),
@@ -391,6 +397,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                         cantParse,
                         cod_incidencia,
                         notaa ?? widget.nota);
+                    print(rsp);
                     if (rsp['code'] == 200) {
                       _guardar(context);
                     }
@@ -430,6 +437,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
               onPressed: () {
                 setState(() {
                   cantParse--;
+                  print(cantParse);
                 });
               },
               child: Icon(
@@ -441,6 +449,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
               onPressed: () {
                 setState(() {
                   cantParse++;
+                  print(cantParse);
                 });
               },
               child: Icon(
