@@ -198,7 +198,7 @@ class _LoginPageState extends State<LoginPage> {
               prefs.setString('correo', email);
               prefs.setString('pwd', password);
               var tipUser = await tipoUsuario(email, password);
-              double cumpli = await porcentajeCumpli(rsp['message'], tipUser);
+              var cumpli = await porcentajeCumpli(rsp['message'], tipUser);
               print(tipUser);
               Fluttertoast.showToast(
                   msg: "Loguin Exitoso",
@@ -213,13 +213,25 @@ class _LoginPageState extends State<LoginPage> {
               //     token: rsp['message'],
               //   );
               // }));
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return MenuPage(
-                  token: rsp['message'],
-                  cumpli: cumpli / 100,
-                  tipo: tipUser,
-                );
-              }));
+              if (cumpli is double) {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return MenuPage(
+                    token: rsp['message'],
+                    cumpli: cumpli / 100,
+                    tipo: tipUser,
+                    map: null,
+                  );
+                }));
+              } else {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return MenuPage(
+                    token: rsp['message'],
+                    cumpli: 20 / 100,
+                    tipo: tipUser,
+                    map: cumpli,
+                  );
+                }));
+              }
             } else {
               Fluttertoast.showToast(
                   msg: "Credenciales Invalidos. Vuelva a intentarlo porfavor.",

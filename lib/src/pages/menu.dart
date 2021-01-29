@@ -19,7 +19,8 @@ class MenuPage extends StatefulWidget {
   final String token;
   final double cumpli;
   final int tipo;
-  MenuPage({this.token, this.cumpli, this.tipo});
+  final Map map;
+  MenuPage({this.token, this.cumpli, this.tipo, this.map});
   @override
   _MenuPageState createState() => _MenuPageState();
 }
@@ -34,7 +35,7 @@ class _MenuPageState extends State<MenuPage> {
   ];
 
   Color _appBarColor = Color(0xff354A5F);
-  double porcentajeCumplido;
+  var porcentajeCumplido;
   // Color _subtitleColor = Color(0xff6A6D70);
   TextStyle _titleStyle = TextStyle(
       fontSize: 18.0,
@@ -66,19 +67,27 @@ class _MenuPageState extends State<MenuPage> {
   //final menuprovider = MenuProvider();
   final controllerchanges = new StreamController<dynamic>();
 
-  Map<String, double> dataMap = {
-    "Flutter": 5,
-    "React": 3,
-    "Xamarin": 2,
-    "Ionic": 2,
-  };
+  // Map<String, double> dataMap = {
+  //   "Flutter": 5,
+  //   "React": 3,
+  //   "Xamarin": 2,
+  //   "Ionic": 2,
+  // };
 
-  List<Color> listColors = [Colors.red, Colors.blue, Colors.purple];
+  List<Color> listColors = [
+    Color(0xffFFEC21),
+    Color(0xff378AFF),
+    Color(0xffFFA32F),
+    Color(0xffF54F52),
+    Color(0xff93F03B),
+    Color(0xff9552EA)
+  ];
 
   @override
   void initState() {
     porcentajeCumplido = widget.cumpli ?? 0;
     print(widget.tipo);
+    print(widget.map);
     super.initState();
   }
 
@@ -177,7 +186,7 @@ class _MenuPageState extends State<MenuPage> {
               children: <Widget>[
                 LoguinBackground(),
                 SingleChildScrollView(
-                  padding: EdgeInsets.only(left: 10),
+                  padding: EdgeInsets.only(left: 10, right: 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
@@ -222,25 +231,28 @@ class _MenuPageState extends State<MenuPage> {
       ),
     );
 
-    Widget _valuePercentAll = PieChart(
-      dataMap: dataMap,
-      animationDuration: Duration(milliseconds: 800),
-      chartLegendSpacing: 32,
-      chartRadius: MediaQuery.of(context).size.width / 3.2,
-      colorList: listColors,
-      initialAngleInDegree: 0,
-      chartType: ChartType.ring,
-      ringStrokeWidth: 9,
-      legendOptions: LegendOptions(
-        showLegendsInRow: false,
-        legendPosition: LegendPosition.right,
-        showLegends: true,
-      ),
-      chartValuesOptions: ChartValuesOptions(
-        showChartValueBackground: false,
-        showChartValues: true,
-        showChartValuesInPercentage: true,
-        showChartValuesOutside: true,
+    Widget _valuePercentAll = Padding(
+      padding: EdgeInsets.all(10),
+      child: PieChart(
+        dataMap: widget.map,
+        animationDuration: Duration(milliseconds: 800),
+        chartLegendSpacing: 32,
+        chartRadius: MediaQuery.of(context).size.width / 3.2,
+        colorList: listColors,
+        initialAngleInDegree: 0,
+        chartType: ChartType.ring,
+        ringStrokeWidth: 9,
+        legendOptions: LegendOptions(
+          showLegendsInRow: false,
+          legendPosition: LegendPosition.right,
+          showLegends: true,
+        ),
+        chartValuesOptions: ChartValuesOptions(
+          showChartValueBackground: true,
+          showChartValues: true,
+          showChartValuesInPercentage: true,
+          showChartValuesOutside: true,
+        ),
       ),
     );
 
@@ -264,8 +276,9 @@ class _MenuPageState extends State<MenuPage> {
         ));
 
     return Table(
-      defaultColumnWidth:
-          FixedColumnWidth(MediaQuery.of(context).size.width * 0.5),
+      defaultColumnWidth: FixedColumnWidth(widget.tipo == 1 || widget.tipo == 2
+          ? MediaQuery.of(context).size.width * 0.95
+          : MediaQuery.of(context).size.width * 0.5),
       children: [
         TableRow(children: [
           roundButtonWidget(widget.tipo == 1 || widget.tipo == 2
@@ -287,7 +300,7 @@ class _MenuPageState extends State<MenuPage> {
       },
       child: ClipRect(
         child: Container(
-          height: 188.0,
+          height: widget.tipo == 1 || widget.tipo == 2 ? 350.0 : 188.0,
           margin: EdgeInsets.all(15.0),
           decoration: BoxDecoration(
             color: Colors.white,

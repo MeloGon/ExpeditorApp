@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:expeditor_app/src/models/cumplimientoad_model.dart';
 import 'package:expeditor_app/src/models/grafico_model.dart';
 import 'package:expeditor_app/src/models/imagenes_model.dart';
 import 'package:expeditor_app/src/models/incidencia_model.dart';
@@ -118,7 +119,7 @@ Future<String> numeroMateriales(String token, String nroot) async {
   return materiales.length.toString();
 }
 
-Future<double> porcentajeCumpli(String token, int tipo) async {
+Future porcentajeCumpli(String token, int tipo) async {
   String url = 'https://innovadis.net.pe/apiExpeditorPruebas/public/graficos/';
   int totalCantNecesaria = 0;
   int totalCantEntregadas = 0;
@@ -141,15 +142,46 @@ Future<double> porcentajeCumpli(String token, int tipo) async {
     cumplimiento = (totalCantEntregadas / totalCantNecesaria) * 100;
     return cumplimiento;
   } else {
-    // List<String> empresas = [];
-    // (receivedJson['data'] as List)
-    //     .map((p) => Grafico.fromJson(p))
-    //     .toList()
-    //     .forEach((element) {
-    //   empresas.add(element.empresa);
-    // });
-    // print(empresas);
-    return 20;
+    var receivedJson = json.decode(response.body);
+    List<String> empresas = [];
+    List<String> lempresas = [];
+    List<double> cumplimientos = [];
+    List<int> cantidadesEntregadas = [];
+
+    (receivedJson['data'] as List)
+        .map((p) => Grafico.fromJson(p))
+        .toList()
+        .forEach((element) {
+      empresas.add(element.empresa);
+    });
+
+    lempresas = empresas.toSet().toList();
+    print(lempresas);
+    List<int> cantidadesNecesarias = [];
+    cantidadesNecesarias = List.filled(lempresas.length, 0);
+    cantidadesEntregadas = List.filled(lempresas.length, 0);
+    for (var i = 0; i < lempresas.length; i++) {
+      (receivedJson['data'] as List)
+          .map((p) => Grafico.fromJson(p))
+          .toList()
+          .forEach((element) {
+        if (element.empresa == lempresas[i]) {
+          cantidadesNecesarias[i] += element.cantNecesaria;
+          cantidadesEntregadas[i] += element.cantEntregada;
+        }
+      });
+    }
+
+    for (var i = 0; i < lempresas.length; i++) {
+      cumplimientos.add(cantidadesEntregadas[i] / cantidadesNecesarias[i]);
+    }
+
+    Map<String, double> map = {
+      for (var i = 0; i < lempresas.length; i++)
+        lempresas[i]: (cumplimientos[i] * 100).roundToDouble()
+    };
+
+    return map;
   }
 }
 
