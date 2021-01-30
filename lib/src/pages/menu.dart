@@ -55,15 +55,11 @@ class _MenuPageState extends State<MenuPage> {
       color: Color(0xff6A6D70),
       fontWeight: FontWeight.normal);
 
-  TextStyle _numberCardStyle = TextStyle(
-      fontSize: 40.0,
-      fontFamily: 'fuente72',
-      color: Color(0xff6A6D70),
-      fontWeight: FontWeight.normal);
-
-  TextStyle _changeStyle = TextStyle(
-      fontSize: 14.0, fontFamily: 'fuente72', color: Color(0xff0A6ED1));
   var formater = new DateFormat('mm');
+
+  var dt = DateTime.now();
+  var fecha;
+
   //final menuprovider = MenuProvider();
   final controllerchanges = new StreamController<dynamic>();
 
@@ -86,6 +82,7 @@ class _MenuPageState extends State<MenuPage> {
   @override
   void initState() {
     porcentajeCumplido = widget.cumpli ?? 0;
+    fecha = DateFormat.yMMMM('es').format(dt);
     print(widget.tipo);
     print(widget.map);
     super.initState();
@@ -115,7 +112,7 @@ class _MenuPageState extends State<MenuPage> {
                 child: Row(
                   children: <Widget>[
                     Text(
-                      'Menu',
+                      'Inicio',
                     ),
                     Icon(Icons.arrow_drop_down)
                   ],
@@ -262,9 +259,9 @@ class _MenuPageState extends State<MenuPage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('Cumplimiento', style: _titleCardStyle),
+            Text('Avances Preparativos', style: _titleCardStyle),
             Text(
-              '2021',
+              '$fecha'.toUpperCase(),
               style: _subtitleCardStyle,
             ),
             // Text('2020W31', style: _subtitleCardStyle),
@@ -276,14 +273,17 @@ class _MenuPageState extends State<MenuPage> {
         ));
 
     return Table(
-      defaultColumnWidth: FixedColumnWidth(widget.tipo == 1 || widget.tipo == 2
-          ? MediaQuery.of(context).size.width * 0.95
-          : MediaQuery.of(context).size.width * 0.5),
+      // defaultColumnWidth: FixedColumnWidth(widget.tipo == 1 || widget.tipo == 2
+      //     ? MediaQuery.of(context).size.width * 0.95
+      //     : MediaQuery.of(context).size.width * 0.5),
+      defaultColumnWidth:
+          FixedColumnWidth(MediaQuery.of(context).size.width * 0.5),
       children: [
         TableRow(children: [
-          roundButtonWidget(widget.tipo == 1 || widget.tipo == 2
-              ? _valuePercentAll
-              : _contentWe)
+          // roundButtonWidget(widget.tipo == 1 || widget.tipo == 2
+          //     ? _valuePercentAll
+          //     : _contentWe)
+          roundButtonWidget(_contentWe),
         ]),
       ],
     );
@@ -300,7 +300,8 @@ class _MenuPageState extends State<MenuPage> {
       },
       child: ClipRect(
         child: Container(
-          height: widget.tipo == 1 || widget.tipo == 2 ? 350.0 : 188.0,
+          // height: widget.tipo == 1 || widget.tipo == 2 ? 350.0 : 188.0,
+          height: 188.0,
           margin: EdgeInsets.all(15.0),
           decoration: BoxDecoration(
             color: Colors.white,

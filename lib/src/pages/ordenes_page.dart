@@ -61,7 +61,8 @@ class _OrdenesPageState extends State<OrdenesPage> {
   String _fecha = '';
   String _opcionSeleccionada;
   String filtroBusqueda = "";
-  String a;
+  List<String> a = [];
+  String b;
 
   List<OrdenModel> listaOrdenToda = new List<OrdenModel>();
   List<OrdenModel> listaOrdenTodaFiltrada = new List<OrdenModel>();
@@ -69,6 +70,11 @@ class _OrdenesPageState extends State<OrdenesPage> {
 
   @override
   void initState() {
+    listaOrdenes();
+    super.initState();
+  }
+
+  listaOrdenes() async {
     cargarOrdenes(widget.token).then((value) {
       setState(() {
         listaOrdenToda = value;
@@ -76,7 +82,6 @@ class _OrdenesPageState extends State<OrdenesPage> {
         cantidadOrdenes = listaOrdenToda.length;
       });
     });
-    super.initState();
   }
 
   @override
@@ -86,24 +91,9 @@ class _OrdenesPageState extends State<OrdenesPage> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: _sapColor,
-        automaticallyImplyLeading: false,
-        title: Text('Inicio'),
+        title: Text('Avances'),
+        centerTitle: false,
         actions: <Widget>[
-          IconButton(
-              icon: Icon(
-                Icons.sync,
-              ),
-              onPressed: () {
-                setState(() {
-                  cargarOrdenes(widget.token).then((value) {
-                    setState(() {
-                      listaOrdenToda = value;
-                      listaOrdenTodaFiltrada = listaOrdenToda;
-                      cantidadOrdenes = listaOrdenToda.length;
-                    });
-                  });
-                });
-              }),
           //_perfilCircle(context),
           PopupMenuButton<String>(
             icon: Icon(
@@ -135,63 +125,60 @@ class _OrdenesPageState extends State<OrdenesPage> {
           )
         ],
       ),
-      body: Container(
-        height: double.infinity,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            _panelFiltros(context),
-            _panelContador(),
-            _panelCabecera(),
-            Expanded(child: _panelLista(context)),
-          ],
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(new FocusNode());
+        },
+        child: Container(
+          height: double.infinity,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              _panelFiltros(context),
+              _panelContador(),
+              _panelCabecera(),
+              Expanded(child: _panelLista(context)),
+            ],
+          ),
         ),
       ),
     );
-  }
-
-  Widget _perfilCircle(BuildContext context) {
-    return GestureDetector(
-      onTap: () {},
-      child: CircleAvatar(
-        // child: Text('KM'),
-        child: Icon(
-          Icons.supervised_user_circle,
-          color: _sapColor,
-        ),
-        backgroundColor: Colors.white,
-      ),
-    );
-    // margin: EdgeInsets.only(right: 15.0));
   }
 
   Widget _panelFiltros(BuildContext context) {
-    return ExpansionPanelList(
-      animationDuration: Duration(milliseconds: 300),
-      expansionCallback: (int index, bool isExpanded) {
-        setState(() {
-          _data[index].isExpanded = !isExpanded;
-        });
-      },
-      children: _data.map<ExpansionPanel>((Item item) {
-        return ExpansionPanel(
-          headerBuilder: (BuildContext context, bool isExpanded) {
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ListTile(
-                title: Text(
-                  'Estándar',
-                  style: TextStyle(
-                      fontSize: 24, color: _colorBlue, fontFamily: 'fuente72'),
-                ),
-              ),
-            );
-          },
-          body: creandoFiltros(context),
-          isExpanded: item.isExpanded,
-        );
-      }).toList(),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 5),
+      child: Container(
+        width: double.infinity,
+        child: creandoFiltros(context),
+      ),
     );
+    // return ExpansionPanelList(
+    //   animationDuration: Duration(milliseconds: 300),
+    //   expansionCallback: (int index, bool isExpanded) {
+    //     setState(() {
+    //       _data[index].isExpanded = !isExpanded;
+    //     });
+    //   },
+    //   children: _data.map<ExpansionPanel>((Item item) {
+    //     return ExpansionPanel(
+    //       headerBuilder: (BuildContext context, bool isExpanded) {
+    //         return Padding(
+    //           padding: const EdgeInsets.all(8.0),
+    //           child: ListTile(
+    //             title: Text(
+    //               'Estándar',
+    //               style: TextStyle(
+    //                   fontSize: 24, color: _colorBlue, fontFamily: 'fuente72'),
+    //             ),
+    //           ),
+    //         );
+    //       },
+    //       body: creandoFiltros(context),
+    //       isExpanded: item.isExpanded,
+    //     );
+    //   }).toList(),
+    // );
   }
 
   Widget _panelContador() {
@@ -264,7 +251,10 @@ class _OrdenesPageState extends State<OrdenesPage> {
               backgroundColor: Colors.white,
               textColor: Colors.black,
               fontSize: 14.0);
+          print('presiones');
           a = await numeroMateriales(widget.token, orden.nroOt);
+          print(a[1]);
+          //b = await numeroFotos(widget.token, orden.nroOt);
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return DetallesOT(
               token: widget.token,
@@ -279,9 +269,10 @@ class _OrdenesPageState extends State<OrdenesPage> {
               cantreque: '${orden.cantEntregada}',
               cumpli: '${orden.cumplimiento}',
               fechamovi: '${orden.fechaMovilizacion}',
-              cantmat: a,
+              cantmat: a[0],
+              cantfot: a[1],
             );
-          }));
+          })).then((value) => listaOrdenes());
         },
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

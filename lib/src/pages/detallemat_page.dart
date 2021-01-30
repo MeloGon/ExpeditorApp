@@ -228,7 +228,7 @@ class _DetalleMatPageState extends State<DetalleMatPage> {
                 color: _colorTitle, fontFamily: 'fuente72', fontSize: 14),
           ),
           subtitle: Text(
-            '${widget.acopio ?? " "}',
+            '${widget.acopio == "null" ? " " : widget.acopio}',
             style: TextStyle(
                 color: _colorSubtitle,
                 fontWeight: FontWeight.w500,

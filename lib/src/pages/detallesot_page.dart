@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:expeditor_app/api.dart';
 import 'package:expeditor_app/src/models/imagenes_model.dart';
 import 'package:expeditor_app/src/models/materiales_model.dart';
-import 'package:expeditor_app/src/models/orden_model.dart';
+
 import 'package:expeditor_app/src/pages/detallemat_page.dart';
-import 'package:flutter/scheduler.dart';
+
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:http/http.dart' as http;
@@ -26,7 +26,8 @@ class DetallesOT extends StatefulWidget {
       cantreque,
       cumpli,
       fechamovi,
-      cantmat;
+      cantmat,
+      cantfot;
   DetallesOT(
       {this.token,
       this.nroot,
@@ -40,7 +41,8 @@ class DetallesOT extends StatefulWidget {
       this.cantreque,
       this.cumpli,
       this.fechamovi,
-      this.cantmat});
+      this.cantmat,
+      this.cantfot});
   @override
   _DetallesOTState createState() => _DetallesOTState();
 }
@@ -70,6 +72,7 @@ class _DetallesOTState extends State<DetallesOT>
   bool isediting = false;
   String nuevaDescri;
   String cantMats;
+  List<String> detalles = List<String>(3);
 
   @override
   void initState() {
@@ -77,8 +80,21 @@ class _DetallesOTState extends State<DetallesOT>
     ids = [];
     _loadImageIds();
     cargarMats();
+    actualizarDets();
     _scrollController = new ScrollController(initialScrollOffset: 300);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  actualizarDets() async {
+    setState(() {});
+    detalles = await actualizarDetalles(widget.token, widget.nroot);
+    print(detalles);
   }
 
   cargarMats() async {
@@ -87,7 +103,6 @@ class _DetallesOTState extends State<DetallesOT>
         listaMaterialesToda = value;
         listaMaterialesTodaFiltrada = listaMaterialesToda;
         cantidadMateriales = listaMaterialesTodaFiltrada.length;
-        print('cantidad de materiales $cantidadMateriales');
       });
     });
   }
@@ -104,12 +119,6 @@ class _DetallesOTState extends State<DetallesOT>
       loading = false;
       ids = _ids;
     });
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 
   @override
@@ -158,9 +167,9 @@ class _DetallesOTState extends State<DetallesOT>
                       unselectedLabelColor: Colors.grey,
                       tabs: [
                         Tab(
-                          text: "Materiales ${widget.cantmat}",
+                          text: "Materiales (${widget.cantmat ?? 0})",
                         ),
-                        Tab(text: "Fotos"),
+                        Tab(text: "Fotos (${widget.cantfot ?? 0})"),
                       ],
                     ),
                   ),
@@ -259,7 +268,8 @@ class _DetallesOTState extends State<DetallesOT>
               ),
               //aqui abajo era cantidad requerida preguntar que paso
               Text(
-                '${widget.cantnece} EA',
+                //'${widget.cantnece} EA',
+                '${detalles[0] ?? ""} EA',
                 style: estiloCant,
               ),
               SizedBox(
@@ -273,7 +283,7 @@ class _DetallesOTState extends State<DetallesOT>
                 height: 10,
               ),
               Text(
-                '${widget.cantreque} EA',
+                '${detalles[1] ?? ""} EA',
                 style: estiloCant,
               ),
               SizedBox(
@@ -287,7 +297,7 @@ class _DetallesOTState extends State<DetallesOT>
                 height: 10,
               ),
               Text(
-                '${widget.cumpli}%',
+                '${detalles[2] ?? ""}%',
                 style: TextStyle(
                     fontFamily: 'fuente72',
                     fontSize: 24,
@@ -344,7 +354,10 @@ class _DetallesOTState extends State<DetallesOT>
             nota: '${material.notas}',
           );
           //setState(() {});
-        })).then((value) async => cargarMats());
+        })).then((value) {
+          cargarMats();
+          actualizarDets();
+        });
       },
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -414,7 +427,7 @@ class _DetallesOTState extends State<DetallesOT>
             children: <Widget>[
               Text('Punto Acopio: '),
               Text(
-                '${material.puntoAcopio}',
+                '${material.puntoAcopio ?? " "}',
                 style: estiloMoreRight,
               ),
             ],
@@ -422,13 +435,20 @@ class _DetallesOTState extends State<DetallesOT>
         ],
       ),
       trailing: Container(
-        width: 53,
+        width: 140,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
+                Text(
+                  '${material.cantEntregada}/',
+                  style: TextStyle(
+                      color: Color(0xff6A6D70),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700),
+                ),
                 Text(
                   '${material.cantNecesaria}',
                   style: TextStyle(

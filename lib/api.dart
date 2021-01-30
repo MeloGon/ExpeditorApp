@@ -75,6 +75,29 @@ Future<OrdenModel> getDetalles(String token, String nroot) async {
   return orden;
 }
 
+Future actualizarDetalles(String token, String nroot) async {
+  String url =
+      'https://innovadis.net.pe/apiExpeditorPruebas/public/orden_trabajo/' +
+          nroot;
+  final response = await http.get(
+    url,
+    headers: {
+      "Accept": "application/json",
+      "Content-type": "application/x-www-form-urlencoded",
+      "Authorization": token,
+    },
+  );
+  List<String> detalles = new List();
+  //OrdenModel orden = OrdenModel.fromJson(json.decode(response.body)['data']);
+  OrdenModel receivedJson =
+      OrdenModel.fromJson(json.decode(response.body)['data']);
+  detalles.add(receivedJson.cantNecesaria.toString());
+  detalles.add(receivedJson.cantEntregada.toString());
+  detalles.add(receivedJson.cumplimiento.toString());
+
+  return detalles;
+}
+
 Future<List<MaterialModel>> cargarMateriales(String token, String nroot) async {
   String url =
       'https://innovadis.net.pe/apiExpeditorPruebas/public/orden_trabajo/' +
@@ -96,7 +119,7 @@ Future<List<MaterialModel>> cargarMateriales(String token, String nroot) async {
   return materiales;
 }
 
-Future<String> numeroMateriales(String token, String nroot) async {
+Future<List<String>> numeroMateriales(String token, String nroot) async {
   String url =
       'https://innovadis.net.pe/apiExpeditorPruebas/public/orden_trabajo/' +
           nroot;
@@ -105,19 +128,31 @@ Future<String> numeroMateriales(String token, String nroot) async {
     "Content-type": "application/x-www-form-urlencoded",
     "Authorization": token,
   });
-  List<dynamic> lista = json.decode(response.body)['data']['materiales'];
-  // print(lista.length);
-
-  final List<MaterialModel> materiales = new List();
+  //print(response.body);
+  final List<String> retorno = new List();
   var receivedJson = json.decode(response.body);
-  (receivedJson['data']['materiales'] as List)
-      .map((p) => MaterialModel.fromJson(p))
-      .toList()
-      .forEach((element) {
-    materiales.add(element);
-  });
-  return materiales.length.toString();
+  List materiales = receivedJson['data']['materiales'] as List;
+  List imagenes = receivedJson['data']['imagenes'] as List;
+
+  retorno.add(materiales.length.toString());
+  retorno.add(imagenes.length.toString());
+
+  return retorno;
 }
+
+// Future<String> numeroFotos(String token, String nroot) async {
+//   String url =
+//       'https://innovadis.net.pe/apiExpeditorPruebas/public/orden_trabajo/' +
+//           nroot;
+//   final response = await http.get(url, headers: {
+//     "Accept": "application/json",
+//     "Content-type": "application/x-www-form-urlencoded",
+//     "Authorization": token,
+//   });
+//   var receivedJson = json.decode(response.body);
+//   List imagens = receivedJson['data']['imagenes'] as List;
+//   return (imagens.length.toString());
+// }
 
 Future porcentajeCumpli(String token, int tipo) async {
   String url = 'https://innovadis.net.pe/apiExpeditorPruebas/public/graficos/';
@@ -130,7 +165,7 @@ Future porcentajeCumpli(String token, int tipo) async {
     "Authorization": token,
   });
 
-  if (tipo == 3 || tipo == 4) {
+  if (tipo == 1 || tipo == 2 || tipo == 3 || tipo == 4) {
     var receivedJson = json.decode(response.body);
     (receivedJson['data'] as List)
         .map((p) => Grafico.fromJson(p))
