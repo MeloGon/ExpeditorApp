@@ -823,11 +823,15 @@ class _ImagePageState extends State<ImagePage> {
         ],
       ),
       body: Center(
-        child: Image(
+        child: Container(
+          height: double.infinity,
+          child: Image.file(File(widget.foto.path)),
+        ),
+        /* child: Image(
           image: AssetImage(widget.foto.path),
           height: 300.0,
           fit: BoxFit.cover,
-        ),
+        ), */
       ),
     );
   }
